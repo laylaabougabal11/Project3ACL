@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public abstract class WandererController : MonoBehaviour
+public abstract class movement : MonoBehaviour
 {
     // Shared properties for all Wanderers
     public int maxHealth = 100;
