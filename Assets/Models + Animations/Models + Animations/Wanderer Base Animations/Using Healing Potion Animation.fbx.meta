@@ -33,11 +33,11 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: Wanderer Healing Potion
+      name: Using Healing Potion
       takeName: mixamo.com
       internalID: -203655887218126122
       firstFrame: 0
-      lastFrame: 256
+      lastFrame: 532
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -544,13 +544,13 @@ ModelImporter:
         length: 0
         modified: 0
     skeleton:
-    - name: Barbarian Model(Clone)
+    - name: Brute(Clone)
       parentName: 
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: MaleBruteA_Meshes
-      parentName: Barbarian Model(Clone)
+      parentName: Brute(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
@@ -600,7 +600,7 @@ ModelImporter:
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: mixamorig:Hips
-      parentName: Barbarian Model(Clone)
+      parentName: Brute(Clone)
       position: {x: -0.00000022261199, y: 1.218676, z: -0.0038267474}
       rotation: {x: 0.0000015336782, y: -0.000015485153, z: 0.00047490446, w: 0.9999999}
       scale: {x: 1, y: 1, z: 1}
@@ -971,7 +971,7 @@ ModelImporter:
     hasTranslationDoF: 0
     hasExtraRoot: 1
     skeletonHasParents: 1
-  lastHumanDescriptionAvatarSource: {fileID: 9000000, guid: 013a4e03bb3652940aaaa833052d9561, type: 3}
+  lastHumanDescriptionAvatarSource: {fileID: 9000000, guid: 7d6f0801dd60a8f4aaf9537ff6360158, type: 3}
   autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 3
   humanoidOversampling: 1

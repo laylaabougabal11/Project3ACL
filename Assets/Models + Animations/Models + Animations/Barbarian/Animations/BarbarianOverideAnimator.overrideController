@@ -6,6 +6,6 @@ AnimatorOverrideController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: BarbarianOverridAnimattor
+  m_Name: BarbarianOverideAnimator
   m_Controller: {fileID: 9100000, guid: 92d146883fe1f784e988cfd06f3c5814, type: 2}
   m_Clips: []
