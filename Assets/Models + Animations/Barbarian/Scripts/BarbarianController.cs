@@ -26,7 +26,6 @@ public class Barbarian : WandererController
 
     // Charge ability properties
     public float chargeSpeed = 10f; // Speed of the charge
-    public float chargeRange = 15f; // Maximum distance for the charge
     public int bossDamage = 20; // Damage dealt to the boss
     public LayerMask walkableLayer; // LayerMask for walkable surfaces
     public LayerMask enemyLayer; // LayerMask for enemies
@@ -39,6 +38,8 @@ public class Barbarian : WandererController
     protected override void Start()
     {
         base.Start();
+
+        walkableLayer = LayerMask.GetMask("Terrain");
 
         // Initialize cooldowns
         cooldownTimers = new Dictionary<string, float>
@@ -92,7 +93,7 @@ public class Barbarian : WandererController
 
     protected override void HandleInputs()
     {
-        if (Input.GetMouseButtonDown(0) && cooldownTimers["Bash"] <= 0)
+        if (Input.GetMouseButtonDown(1) && cooldownTimers["Bash"] <= 0)
         {
             TryBash();
         }
@@ -209,7 +210,9 @@ public class Barbarian : WandererController
     private void InitiateCharge()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, chargeRange, walkableLayer))
+
+        // Perform the raycast without a range limit
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, walkableLayer.value))
         {
             chargeTarget = hit.point; // Set the target position
 
@@ -219,18 +222,30 @@ public class Barbarian : WandererController
         }
         else
         {
-            Debug.Log("Invalid charge target. Ensure it's walkable and within range.");
+            Debug.Log("Invalid charge target. Ensure it's walkable.");
         }
+
+
+
     }
 
     private void Charge()
     {
-        animator.SetTrigger("UltimateTrigger"); // Use animator from the parent class
-        isAbilityActive = true; // Mark the ability as active
+        // Trigger the charge animation
+        animator.SetTrigger("UltimateTrigger");
 
-        Debug.Log("Charge activated!");
-        cooldownTimers["Charge"] = cooldownDurations["Charge"];
+        // Calculate the direction to the target
+        Vector3 direction = (chargeTarget - transform.position).normalized;
+
+        // Rotate to face the target direction
+        Quaternion targetRotation = Quaternion.LookRotation(direction);
+        transform.rotation = targetRotation;
+
+        // Start charging
+        isCharging = true;
+        Debug.Log("Charge animation triggered and facing target.");
     }
+
 
     public override void TakeDamage(int damage)
     {
