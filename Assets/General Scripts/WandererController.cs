@@ -10,12 +10,16 @@ public abstract class WandererController : MonoBehaviour
 
     public int maxHealth = 100;
     protected int currentHealth;
+    // Inventory system
+    private int runeFragments;
     public int healingPotions;
     // Leveling and XP
     public int currentLevel = 1; // Start at level 1
     public int currentXP = 0; // Start with 0 XP
     public int maxXP = 100; // XP required for the next level
     public int abilityPoints = 0; // Points available to unlock abilities
+
+
 
     // Abilities
     private HashSet<string> unlockedAbilities = new HashSet<string>(); // Track unlocked abilities
@@ -24,7 +28,9 @@ public abstract class WandererController : MonoBehaviour
     {
         // Initialize health
         currentHealth = 10;
-        healingPotions = 3;
+
+        runeFragments = 0;
+        healingPotions = 0;
 
         // Get components on the Wanderer GameObject
         navMeshAgent = GetComponent<NavMeshAgent>();
@@ -114,6 +120,12 @@ public abstract class WandererController : MonoBehaviour
         }
     }
 
+    public void AddHealingPotion()
+    {
+        healingPotions++;
+        Debug.Log($"Healing Potions: {healingPotions}");
+    }
+
     public void UseHealingPotion()
     {
         if (currentHealth == maxHealth || healingPotions == 0)
@@ -132,6 +144,16 @@ public abstract class WandererController : MonoBehaviour
         Debug.Log($"Used potion. Current health: {currentHealth}, Potions left: {healingPotions}");
     }
 
+    public void AddRuneFragment()
+    {
+        runeFragments++;
+        Debug.Log($"Rune Fragments: {runeFragments}");
+
+        if (runeFragments >= 3)
+        {
+            Debug.Log("You have enough Rune Fragments to unlock the gate!");
+        }
+    }
 
     // Damage handling (shared logic)
     public virtual void TakeDamage(int damage)
