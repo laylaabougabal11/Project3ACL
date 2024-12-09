@@ -9,7 +9,7 @@ public abstract class WandererController : MonoBehaviour
     protected Animator animator; // Reference to Animator component
 
     public int maxHealth = 100;
-    protected int currentHealth;
+    public int currentHealth;
     // Inventory system
     private int runeFragments;
     public int healingPotions;
