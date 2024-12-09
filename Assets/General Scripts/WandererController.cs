@@ -2,14 +2,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public abstract class WandererController : MonoBehaviour
+public abstract class WandererController : MonoBehaviour, IHealth
 {
     // Shared properties for all Wanderers
     protected NavMeshAgent navMeshAgent; // Reference to NavMeshAgent
     protected Animator animator; // Reference to Animator component
 
     public int maxHealth = 100;
-    public int currentHealth;
+    public int currentHealth = 40;
+
+    public int CurrentHealth => currentHealth;
+    public int MaxHealth => maxHealth;
     // Inventory system
     private int runeFragments;
     public int healingPotions;
@@ -138,7 +141,8 @@ public abstract class WandererController : MonoBehaviour
 
         // Heal the character
         int healAmount = maxHealth / 2;
-        currentHealth = Mathf.Min(currentHealth + healAmount, maxHealth);
+        currentHealth = Mathf.Clamp(currentHealth + healAmount, 0, maxHealth);
+
         healingPotions--; // Decrease potion count
 
         Debug.Log($"Used potion. Current health: {currentHealth}, Potions left: {healingPotions}");
@@ -160,7 +164,7 @@ public abstract class WandererController : MonoBehaviour
     {
         animator.SetTrigger("GetDamagedTrigger");
 
-        currentHealth -= damage;
+        currentHealth = Mathf.Clamp(currentHealth - damage, 0, maxHealth);
         Debug.Log($"Health remaining: {currentHealth}");
 
         if (currentHealth <= 0)

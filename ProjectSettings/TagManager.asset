@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - Wanderer
+  - Camp
+  - Minion
+  - Demon
   layers:
   - Default
   - TransparentFX
