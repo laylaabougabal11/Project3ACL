@@ -81,12 +81,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 9f4b5669d504c6f4c9a65b0e15ff4ae2, type: 3}
       propertyPath: m_Name
-      value: Sorcerer Model
+      value: Sorcerer Clone
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 9f4b5669d504c6f4c9a65b0e15ff4ae2, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: ddc1ab730ce3d2b4fb9566a32f69a187, type: 2}
+      objectReference: {fileID: 9100000, guid: a7584a2d16a5b7345af7cfc6a4fbb070, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 9f4b5669d504c6f4c9a65b0e15ff4ae2, type: 3}
+      propertyPath: m_WarningMessage
+      value: 
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -96,44 +100,16 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9f4b5669d504c6f4c9a65b0e15ff4ae2, type: 3}
       insertIndex: -1
-      addedObject: {fileID: -6913044382850498350}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9f4b5669d504c6f4c9a65b0e15ff4ae2, type: 3}
-      insertIndex: -1
       addedObject: {fileID: -8720876310832254400}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9f4b5669d504c6f4c9a65b0e15ff4ae2, type: 3}
       insertIndex: -1
       addedObject: {fileID: -8058221075088788079}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9f4b5669d504c6f4c9a65b0e15ff4ae2, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 6327630617621274737}
   m_SourcePrefab: {fileID: 100100000, guid: 9f4b5669d504c6f4c9a65b0e15ff4ae2, type: 3}
 --- !u!1 &5738977100724518470 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 9f4b5669d504c6f4c9a65b0e15ff4ae2, type: 3}
   m_PrefabInstance: {fileID: 4856455541637251863}
   m_PrefabAsset: {fileID: 0}
---- !u!195 &-6913044382850498350
-NavMeshAgent:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5738977100724518470}
-  m_Enabled: 1
-  m_AgentTypeID: 0
-  m_Radius: 0.5
-  m_Speed: 5
-  m_Acceleration: 8
-  avoidancePriority: 50
-  m_AngularSpeed: 120
-  m_StoppingDistance: 0
-  m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
-  m_AutoRepath: 1
-  m_Height: 2
-  m_BaseOffset: 0
-  m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
 --- !u!54 &-8720876310832254400
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -184,24 +160,6 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &6327630617621274737
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5738977100724518470}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c90b0e1c13a5da24a8475614415c3195, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 100
-  fireballPrefab: {fileID: 6868458627772880108, guid: a5012db756556084c981fdeb29e7dcaf, type: 3}
-  fireballSpawnPoint: {fileID: 3745458587278375149}
-  clonePrefab: {fileID: 5738977100724518470, guid: 9ac260a62b43c83468d76f07f8b8e127, type: 3}
-  cloneExplosionEffectPrefab: {fileID: 2086071427687274517, guid: 21ebdfa6dddb4f842b3fc9d9dc04edd4, type: 3}
-  infernoPrefab: {fileID: 168262, guid: 062893e7007e39441aea009115b6cefa, type: 3}
 --- !u!4 &6543787845150047455 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1852576806548013000, guid: 9f4b5669d504c6f4c9a65b0e15ff4ae2, type: 3}
