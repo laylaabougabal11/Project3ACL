@@ -10037,9 +10037,9 @@ GameObject:
   m_Component:
   - component: {fileID: 7363444510606458231}
   - component: {fileID: 2227883370118765168}
-  - component: {fileID: 9152396852197023378}
   - component: {fileID: 2880189469173698072}
   - component: {fileID: 7800382520805853451}
+  - component: {fileID: 2540203446889899865}
   m_Layer: 0
   m_Name: my_firebolt
   m_TagString: Untagged
@@ -10189,25 +10189,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &9152396852197023378
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6868458627772880108}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38761896b909d6949b681cfef2b71fcc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 10
-  damage: 5
-  maxTravelDistance: 50
-  fireballParticle: {fileID: 8865168073347573687}
-  fireballCollider: {fileID: 2631607879947237440}
-  explosionParticle: {fileID: 2037872804954489166}
-  explosionAudioSource: {fileID: 4240881285645778542}
 --- !u!135 &2880189469173698072
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -10256,3 +10237,22 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &2540203446889899865
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6868458627772880108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 710b7440d05c75b4781bc813c86b751c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 10
+  damage: 5
+  maxTravelDistance: 50
+  fireballParticle: {fileID: 8865168073347573687}
+  fireballCollider: {fileID: 2631607879947237440}
+  explosionParticle: {fileID: 2037872804954489166}
+  explosionAudioSource: {fileID: 4240881285645778542}

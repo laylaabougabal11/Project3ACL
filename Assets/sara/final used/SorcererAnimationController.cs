@@ -15,6 +15,8 @@ public class SorcererController : WandererController
     public GameObject cloneExplosionEffectPrefab;
     [SerializeField] private GameObject infernoPrefab; // Ring of fire prefab
 
+    private string currentAbility = null; // Tracks the ability in progress
+
 
     // Start is called before the first frame update
     protected override void Start()
@@ -45,7 +47,12 @@ public class SorcererController : WandererController
     {
         base.Update(); // Call the parent class's Update method to handle shared logic
         HandleCooldowns();
-        HandleInputs();
+
+        // Skip input handling if an ability is in progress
+        if (currentAbility == null)
+        {
+            HandleInputs();
+        }
 
         if (isAbilityActive)
         {
@@ -79,6 +86,7 @@ public class SorcererController : WandererController
         {
             if (TrySelectEnemy()) // Only proceed if an enemy is clicked
             {
+                currentAbility = "Fireball";
                 RotateToFireTarget(); // Rotate the sorcerer to face the target
                 animator.SetTrigger("BasicTrigger"); // Trigger the fireball animation
                 StartCoroutine(CastFireballWithDelay(1f)); // Add a delay before casting the fireball
@@ -94,6 +102,7 @@ public class SorcererController : WandererController
         }
         if (Input.GetKeyDown(KeyCode.W) && cooldownTimers["Teleport"] <= 0)
         {
+            currentAbility = "Teleport";
             StartCoroutine(TeleportWithDelay(0.2f)); // Teleport after a short delay
         }
         if (Input.GetKeyDown(KeyCode.W) && cooldownTimers["Teleport"] > 0)
@@ -139,6 +148,8 @@ public class SorcererController : WandererController
         yield return new WaitForSeconds(delay); // Wait for the specified delay
 
         CastFireball(); // Cast the fireball after the delay
+
+        currentAbility = null;
     }
 
 
@@ -191,6 +202,8 @@ public class SorcererController : WandererController
         yield return new WaitForSeconds(delay); // Wait for the delay
 
         Teleport(); // Perform the teleport
+
+        currentAbility = null;
     }
 
     private void Teleport()

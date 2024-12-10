@@ -197,10 +197,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
-  fireballPrefab: {fileID: 6868458627772880108, guid: a5012db756556084c981fdeb29e7dcaf, type: 3}
+  fireballPrefab: {fileID: 6868458627772880108, guid: 2e301534ee49eb94984bae205fde1f36, type: 3}
   fireballSpawnPoint: {fileID: 3745458587278375149}
-  clonePrefab: {fileID: 5738977100724518470, guid: 9ac260a62b43c83468d76f07f8b8e127, type: 3}
-  cloneExplosionEffectPrefab: {fileID: 2086071427687274517, guid: 21ebdfa6dddb4f842b3fc9d9dc04edd4, type: 3}
+  clonePrefab: {fileID: 5738977100724518470, guid: 716c37ec4cc891740b3db855c9ff1cd3, type: 3}
+  cloneExplosionEffectPrefab: {fileID: 2086071427687274517, guid: 7b472caa66925be4fa1dbf623394363d, type: 3}
   infernoPrefab: {fileID: 168262, guid: 062893e7007e39441aea009115b6cefa, type: 3}
 --- !u!4 &6543787845150047455 stripped
 Transform:
