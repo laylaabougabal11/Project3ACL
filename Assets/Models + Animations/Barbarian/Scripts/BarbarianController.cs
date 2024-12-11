@@ -37,6 +37,8 @@ public class Barbarian : WandererController
 
     protected override void Start()
     {
+        enemyLayer = LayerMask.GetMask("enemyLayer"); // Add all relevant layers
+
         base.Start();
 
         walkableLayer = LayerMask.GetMask("Terrain");
@@ -76,6 +78,7 @@ public class Barbarian : WandererController
                 Debug.Log("Returning to Blend Tree.");
             }
         }
+
     }
 
     private void HandleCooldowns()
@@ -118,7 +121,7 @@ public class Barbarian : WandererController
         {
             GameObject target = hit.collider.gameObject; // Get the clicked object
 
-            if (target.CompareTag("Enemy")) // Check if the clicked object is an enemy
+            if (target.CompareTag("Demon") || target.CompareTag("Minion")) // Check if the clicked object is an enemy
             {
                 float distance = Vector3.Distance(transform.position, target.transform.position);
 
@@ -140,26 +143,33 @@ public class Barbarian : WandererController
 
     private void Bash(GameObject enemy)
     {
-        animator.SetTrigger("BasicTrigger"); // Use animator from the parent class
-        Debug.Log("Bash activated!");
-        isAbilityActive = true; // Mark the ability as active
+        if (selectedTarget == null)
+        {
+            Debug.Log("No target selected!");
+            return;
+        }
 
-        cooldownTimers["Bash"] = cooldownDurations["Bash"];
-        // Add logic for dealing damage
+        float distance = Vector3.Distance(transform.position, selectedTarget.position);
+        if (distance <= bashRange) // Check range
+        {
+            Debug.Log($"Bashing {selectedTarget.name}");
+            IHealth targetHealth = selectedTarget.GetComponent<IHealth>();
+            if (targetHealth != null)
+            {
+                targetHealth.TakeDamage(bashDamage); // Deal damage
+            }
 
-        // Apply damage to the enemy
+            animator.SetTrigger("BasicTrigger"); // Play animation
+            isAbilityActive = true; // Mark ability as active
 
-        // EnemyController enemyController = enemy.GetComponent<EnemyController>();
-        // if (enemyController != null)
-        // {
-        //     enemyController.TakeDamage(bashDamage);
-        //     Debug.Log($"Enemy hit for {bashDamage} damage!");
-        // }
-        // else
-        // {
-        //     Debug.LogError("The selected target does not have an EnemyController script.");
-        // }
+            cooldownTimers["Bash"] = cooldownDurations["Bash"]; // Apply cooldown
+        }
+        else
+        {
+            Debug.Log("Target is out of range!");
+        }
     }
+
 
     private void ActivateShield()
     {
@@ -194,18 +204,60 @@ public class Barbarian : WandererController
 
     private void IronMaelstrom()
     {
-        animator.SetTrigger("WildCardTrigger"); // Use animator from the parent class
-        isAbilityActive = true; // Mark the ability as active
+        animator.SetTrigger("WildCardTrigger");
+        isAbilityActive = true;
 
         Debug.Log("Iron Maelstrom activated!");
+
         cooldownTimers["IronMaelstrom"] = cooldownDurations["IronMaelstrom"];
+
+        float radius = 3f;
+        int damage = 30;
+
+        Debug.Log($"Iron Maelstrom checking for enemies within {radius} units.");
+
+        // Damage enemies in a radius
+        DamageEnemiesInRadius(transform.position, radius, damage);
 
         if (maelstromEffect != null)
         {
             Instantiate(maelstromEffect, transform.position, Quaternion.identity);
         }
-
     }
+
+    private void DamageEnemiesInRadius(Vector3 center, float radius, int damage)
+    {
+        Collider[] hitColliders = Physics.OverlapSphere(center, radius, enemyLayer);
+
+        if (hitColliders.Length == 0)
+        {
+            Debug.Log("No enemies detected in the radius.");
+        }
+        else
+        {
+            Debug.Log($"Detected {hitColliders.Length} enemies in the radius.");
+        }
+
+        foreach (Collider collider in hitColliders)
+        {
+            float distance = Vector3.Distance(center, collider.transform.position);
+            Debug.Log($"{collider.name} is {distance} units away from the center.");
+
+            IHealth targetHealth = collider.GetComponent<IHealth>();
+            if (targetHealth != null)
+            {
+                targetHealth.TakeDamage(damage);
+                Debug.Log($"Iron Maelstrom hit {collider.name} for {damage} damage.");
+            }
+            else
+            {
+                Debug.Log($"{collider.name} does not have an IHealth component.");
+            }
+        }
+    }
+
+
+
 
     private void InitiateCharge()
     {
@@ -231,6 +283,13 @@ public class Barbarian : WandererController
 
     private void Charge()
     {
+        // Disable NavMeshAgent during the charge
+        if (navMeshAgent != null)
+        {
+            navMeshAgent.isStopped = true;
+            navMeshAgent.enabled = false;
+        }
+
         // Trigger the charge animation
         animator.SetTrigger("UltimateTrigger");
 
@@ -241,10 +300,69 @@ public class Barbarian : WandererController
         Quaternion targetRotation = Quaternion.LookRotation(direction);
         transform.rotation = targetRotation;
 
-        // Start charging
-        isCharging = true;
-        Debug.Log("Charge animation triggered and facing target.");
+        // Start the charging coroutine
+        StartCoroutine(PerformCharge(direction));
     }
+
+    private IEnumerator PerformCharge(Vector3 direction)
+    {
+        isCharging = true;
+        float chargeDistance = Vector3.Distance(transform.position, chargeTarget);
+        float chargeDuration = chargeDistance / chargeSpeed;
+
+        float elapsedTime = 0f;
+        while (elapsedTime < chargeDuration)
+        {
+            // Move the Barbarian towards the target
+            Vector3 move = direction * chargeSpeed * Time.deltaTime;
+            transform.position += move;
+
+            // Check for collisions with enemies and destructible objects
+            HandleChargeCollisions();
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // End the charge
+        isCharging = false;
+
+        // Re-enable NavMeshAgent
+        if (navMeshAgent != null)
+        {
+            navMeshAgent.enabled = true;
+            navMeshAgent.isStopped = false;
+        }
+
+        Debug.Log("Charge completed.");
+    }
+
+    private void HandleChargeCollisions()
+    {
+        float collisionRadius = 1f; // Adjust based on Barbarian's size
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, collisionRadius);
+
+        foreach (Collider collider in hitColliders)
+        {
+            if (collider.CompareTag("Minion") || collider.CompareTag("Demon"))
+            {
+                // Damage the enemy
+                IHealth targetHealth = collider.GetComponent<IHealth>();
+                if (targetHealth != null)
+                {
+                    targetHealth.TakeDamage(bossDamage);
+                    Debug.Log($"Charge hit {collider.name} for {bossDamage} damage.");
+                }
+            }
+            else if (collider.CompareTag("Destructible"))
+            {
+                // Destroy destructible objects
+                Destroy(collider.gameObject);
+                Debug.Log($"Charge destroyed {collider.name}.");
+            }
+        }
+    }
+
 
 
     public override void TakeDamage(int damage)

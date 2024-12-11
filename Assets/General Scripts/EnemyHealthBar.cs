@@ -12,7 +12,7 @@ public class EnemyHealthBar : MonoBehaviour
     void Start()
     {
         // Search for a parent with the Wanderer or Minion tag
-        Transform parent = FindParentWithTags(transform, new string[] { "Wanderer", "Minion" });
+        Transform parent = FindParentWithTags(transform, new string[] { "Wanderer", "Minion", "Demon" });
 
         if (parent != null)
         {
@@ -29,7 +29,7 @@ public class EnemyHealthBar : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"No IHealth component found on a parent with tag Wanderer or Minion for {gameObject.name}");
+            Debug.LogError($"No IHealth component found on a parent with tag Wanderer , Minion, or Demon for {gameObject.name}");
         }
     }
 

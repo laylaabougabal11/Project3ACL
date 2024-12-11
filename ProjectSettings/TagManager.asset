@@ -7,7 +7,10 @@ TagManager:
   - Wanderer
   - Camp
   - Minion
+  - Destructible
   - Demon
+  - Rune
+  - Potion
   layers:
   - Default
   - TransparentFX
@@ -16,7 +19,7 @@ TagManager:
   - Water
   - UI
   - Wanderer
-  - 
+  - enemyLayer
   - 
   - 
   - 
