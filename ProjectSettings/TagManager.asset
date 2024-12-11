@@ -3,16 +3,23 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Wanderer
+  - Camp
+  - Minion
+  - Destructible
+  - Demon
+  - Rune
+  - Potion
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Terrain
   - Water
   - UI
-  - 
-  - 
+  - Wanderer
+  - enemyLayer
   - 
   - 
   - 
