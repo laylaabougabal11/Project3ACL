@@ -4,6 +4,7 @@ using UnityEngine.AI;
 
 public class DemonController : MonoBehaviour, IHealth
 {
+    // Demon properties
     public int maxHealth = 40;
     private int currentHealth;
 
@@ -61,6 +62,12 @@ public class DemonController : MonoBehaviour, IHealth
     {
         if (!isAlive) return;
 
+        // Update the blend tree parameter for movement
+        if (navAgent != null)
+        {
+            animator.SetFloat("Speed", navAgent.velocity.magnitude);
+        }
+
         if (target != null && Vector3.Distance(transform.position, target.position) <= detectionRange)
         {
             isAlerted = true;
@@ -90,7 +97,7 @@ public class DemonController : MonoBehaviour, IHealth
             if (navAgent.isOnNavMesh)
             {
                 navAgent.SetDestination(target.position);
-                animator.SetFloat("Speed", navAgent.velocity.magnitude);
+                // Blend Tree handles the movement animations based on speed
             }
         }
         else
@@ -109,12 +116,21 @@ public class DemonController : MonoBehaviour, IHealth
             navAgent.isStopped = true;
         }
 
+        // Sword Swing 1
         animator.SetTrigger("SwordSwingTrigger");
         yield return new WaitForSeconds(0.5f);
         DealDamageToTarget(swordDamage);
 
         yield return new WaitForSeconds(attackCooldown);
 
+        // Sword Swing 2
+        animator.SetTrigger("SwordSwingTrigger");
+        yield return new WaitForSeconds(0.5f);
+        DealDamageToTarget(swordDamage);
+
+        yield return new WaitForSeconds(attackCooldown);
+
+        // Explosive Attack
         animator.SetTrigger("ExplosiveTrigger");
         yield return new WaitForSeconds(0.5f);
         Explode();
@@ -163,7 +179,6 @@ public class DemonController : MonoBehaviour, IHealth
             if (NavMesh.SamplePosition(randomPoint, out hit, patrolRadius, NavMesh.AllAreas))
             {
                 navAgent.SetDestination(hit.position);
-                animator.SetFloat("Speed", navAgent.velocity.magnitude);
 
                 while (navAgent.remainingDistance > navAgent.stoppingDistance)
                 {
