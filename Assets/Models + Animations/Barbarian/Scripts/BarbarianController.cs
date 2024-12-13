@@ -27,9 +27,8 @@ public class Barbarian : WandererController
     // Charge ability properties
     public float chargeSpeed = 10f; // Speed of the charge
     public int bossDamage = 20; // Damage dealt to the boss
-    public LayerMask walkableLayer; // LayerMask for walkable surfaces
-    public LayerMask enemyLayer; // LayerMask for enemies
-    public LayerMask destructibleLayer; // LayerMask for destructible objects
+    private LayerMask walkableLayer; // LayerMask for walkable surfaces
+    private LayerMask enemyLayer; // LayerMask for enemies
 
     private bool isCharging = false; // Track if the Barbarian is currently charging
     private Vector3 chargeTarget; // Target position for the charge
