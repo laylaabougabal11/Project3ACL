@@ -1,6 +1,10 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Boss Level.meta
 guid: 012c5a758a6e2124aaa0a04976bda5e4
 folderAsset: yes
+========
+guid: 35937d4a211b495419ce2dfa2261d40a
+>>>>>>>> kareem-branch:Assets/Scenes/MainMenu.unity.meta
 DefaultImporter:
   externalObjects: {}
   userData: 

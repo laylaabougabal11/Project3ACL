@@ -1,7 +1,20 @@
 fileFormatVersion: 2
+<<<<<<< HEAD
 guid: 7b2da12a24a5c1f4fa7a1bb93f65e45b
+=======
+<<<<<<<< HEAD:Assets/Boss Level.meta
+guid: 012c5a758a6e2124aaa0a04976bda5e4
+folderAsset: yes
+========
+guid: 35937d4a211b495419ce2dfa2261d40a
+>>>>>>>> kareem-branch:Assets/Scenes/MainMenu.unity.meta
+>>>>>>> kareem-branch
 DefaultImporter:
   externalObjects: {}
   userData: 
   assetBundleName: 
+<<<<<<< HEAD
   assetBundleVariant: 
+=======
+  assetBundleVariant: 
+>>>>>>> kareem-branch
