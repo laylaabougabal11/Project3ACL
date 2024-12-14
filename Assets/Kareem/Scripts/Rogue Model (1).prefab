@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6806398359964323723
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6495632653018820074}
+  m_Layer: 0
+  m_Name: SpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6495632653018820074
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6806398359964323723}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2925861203480667511}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &3544072912889977535
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -70,7 +101,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 1852576806548013000, guid: fb3d371ea6855da448a789dc31142646, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6495632653018820074}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: fb3d371ea6855da448a789dc31142646, type: 3}
       insertIndex: -1
@@ -85,6 +119,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: -4694730398835942031}
   m_SourcePrefab: {fileID: 100100000, guid: fb3d371ea6855da448a789dc31142646, type: 3}
+--- !u!4 &2925861203480667511 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1852576806548013000, guid: fb3d371ea6855da448a789dc31142646, type: 3}
+  m_PrefabInstance: {fileID: 3544072912889977535}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &4462638801611204590 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: fb3d371ea6855da448a789dc31142646, type: 3}
@@ -175,7 +214,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
-  arrowPrefab: {fileID: 0}
-  arrowSpawnPoint: {fileID: 0}
-  smokeBombPrefab: {fileID: 0}
-  showerOfArrowsPrefab: {fileID: 0}
+  arrowPrefab: {fileID: 2607411569281770713, guid: 87c6853b51b697a43973624d79fc87b1, type: 3}
+  arrowSpawnPoint: {fileID: 6495632653018820074}
+  smokeBombPrefab: {fileID: 3591238353466249508, guid: 36f82f685e9c0e54c895c6ac1ec26c5e, type: 3}
+  showerOfArrowsPrefab: {fileID: 6562754444458239828, guid: 35eda900565aae242a5d2586167183d2, type: 3}

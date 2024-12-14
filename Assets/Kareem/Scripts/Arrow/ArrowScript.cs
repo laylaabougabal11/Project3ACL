@@ -37,25 +37,25 @@ public class ArrowScript : MonoBehaviour
     {
         if (other.CompareTag("Enemy"))
         {
-            Debug.Log($"Hit enemy! Dealing {damage} damage.");
+            Debug.Log($"Hit trigger enemy! Dealing {damage} damage.");
             DestroyArrow(); // Destroy the arrow after hitting
         }
     }
 
-    private void OnCollisionEnter(Collider other)
-    {
-        if (other.CompareTag("Enemy"))
-        {
-            Debug.Log($"Hit enemy! Dealing {damage} damage.");
-            DestroyArrow(); // Destroy the arrow after hitting
-        }
-        //if collided with anythinggggg
-        else
-        {
-            Debug.Log("Arrow hit something else.");
-            DestroyArrow();
-        }
-    }
+    //private void OnCollisionEnter(Collider other)
+    //{
+    //    if (other.CompareTag("Enemy"))
+    //    {
+    //        Debug.Log($"Hit collision enemy! Dealing {damage} damage.");
+    //        DestroyArrow(); // Destroy the arrow after hitting
+    //    }
+    //    //if collided with anythinggggg
+    //    else
+    //    {
+    //        Debug.Log("Arrow hit something else.");
+    //        DestroyArrow();
+    //    }
+    //}
 
     private void DestroyArrow()
     {

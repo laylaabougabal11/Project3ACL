@@ -90,12 +90,12 @@ private bool isAbilityActive = false; // Flag to check if an ability is active
             Debug.Log("Dash still in cooldown.");
         }
 
-        if (Input.GetKeyDown(KeyCode.U) && cooldownTimers["ShowerOfArrows"] <= 0)
+        if (Input.GetKeyDown(KeyCode.E) && cooldownTimers["ShowerOfArrows"] <= 0)
         {
             Vector3 targetPosition = GetMouseWorldPosition();
             UseShowerOfArrows(targetPosition);
         }
-        if (Input.GetKeyDown(KeyCode.U) && cooldownTimers["ShowerOfArrows"] > 0)
+        if (Input.GetKeyDown(KeyCode.E) && cooldownTimers["ShowerOfArrows"] > 0)
         {
             Debug.Log("Shower of Arrows still in cooldown.");
         }
@@ -198,8 +198,18 @@ private IEnumerator DelayArrow(float delay){
     private void UseSmokeBomb()
     {
         Debug.Log("Using Smoke Bomb ability!");
-        animator.SetTrigger("SmokeBombTrigger");
+        animator.SetTrigger("SmokeBombTrigger"); // Trigger the animation
 
+        // Start a coroutine to execute the ability after a delay
+        StartCoroutine(UseSmokeBombWithDelay());
+    }
+
+    private IEnumerator UseSmokeBombWithDelay()
+    {
+        // Optional: Wait for the animation to finish
+        yield return new WaitForSeconds(2); // Replace with the actual animation name
+
+        // Execute the Smoke Bomb ability
         if (smokeBombPrefab != null)
         {
             Instantiate(smokeBombPrefab, transform.position, Quaternion.identity);
@@ -211,13 +221,16 @@ private IEnumerator DelayArrow(float delay){
         }
     }
 
+    
+
+
     private void UseDash(Vector3 targetPosition)
     {
         Debug.Log($"Using Dash ability to: {targetPosition}");
-        animator.SetTrigger("DashTrigger");
+        animator.SetBool("Dashing", true);
 
         isDashing = true; // Set the dashing flag to true
-        navMeshAgent.speed = originalSpeed * 2; // Double the speed for the dash
+        //navMeshAgent.speed = originalSpeed * 2; // Double the speed for the dash
         navMeshAgent.SetDestination(targetPosition); // Set the destination for the dash
         cooldownTimers["Dash"] = cooldownDurations["Dash"];
     }
@@ -228,7 +241,8 @@ private IEnumerator DelayArrow(float delay){
         {
             if (!navMeshAgent.hasPath || navMeshAgent.velocity.sqrMagnitude == 0f)
             {
-                navMeshAgent.speed = originalSpeed; // Reset to original speed after dash is complete
+               
+                animator.SetBool("Dashing", false);
                
                 isDashing = false; // Reset the dashing flag
             }
