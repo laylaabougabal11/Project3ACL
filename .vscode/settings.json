@@ -52,5 +52,9 @@
     "Temp/": true
   },
   "dotnet.defaultSolution": "Project3ACL.sln",
-  "cSpell.words": ["lerp", "Slerp"]
+  "cSpell.words": [
+    "lerp",
+    "Slerp"
+  ],
+  "dotnet.preferCSharpExtension": true
 }

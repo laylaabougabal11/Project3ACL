@@ -21,15 +21,32 @@ public class BossLilithController : MonoBehaviour, IHealth
     // Combat properties
     public float attackCooldown = 2f;
     private bool canAttack = true;
+    private bool alternateAttack = false; // For alternating attacks in Phase 2
+
+    // Reflective Aura properties
+    [Header("Reflective Aura Settings")]
+    public GameObject reflectiveAuraPrefab; // Prefab for Reflective Aura visual
+    private GameObject reflectiveAuraInstance;
+    private bool reflectiveAuraActive = false;
+    public int reflectiveDamage = 15; // Damage reflected to the Wanderer
+    public float reflectiveAuraDuration = 5f; // Duration of Reflective Aura
+
+    // Blood Spikes properties
+    [Header("Blood Spikes Settings")]
+    public GameObject bloodSpikePrefab; // Prefab for Blood Spikes
+    public Transform bloodSpikeSpawnPoint; // Location to spawn Blood Spikes
+
+    // Shield Visual
+    public GameObject shieldVisualPrefab;
+    private GameObject shieldVisual;
 
     // References
     private Animator animator;
     private Transform wanderer;
 
-    // Attack effects
-    public GameObject minionPrefab; // Prefab for summoning minions
-    // public GameObject divebombEffect;
-    // public GameObject bloodSpikeEffect;
+    public GameObject minionPrefab; // Minion prefab for summoning
+
+    public float bloodSpikeRange = 5f; // Medium range for Blood Spike effect
 
     void Start()
     {
@@ -54,7 +71,7 @@ public class BossLilithController : MonoBehaviour, IHealth
             {
                 HandlePhase1Attacks();
             }
-            else
+            else if (phase == 2)
             {
                 HandlePhase2Attacks();
             }
@@ -87,16 +104,18 @@ public class BossLilithController : MonoBehaviour, IHealth
 
     private void HandlePhase2Attacks()
     {
-        if (shieldActive)
-        {
-            TriggerReflectiveAura();
-            StartCoroutine(ReflectiveAura());
-        }
-        else
+        if (alternateAttack && !reflectiveAuraActive)
         {
             TriggerBloodSpikes();
             StartCoroutine(BloodSpikes());
         }
+        else
+        {
+            TriggerReflectiveAura();
+            StartCoroutine(ReflectiveAura());
+        }
+
+        alternateAttack = !alternateAttack; // Alternate between Reflective Aura and Blood Spikes
     }
 
     private IEnumerator SummonMinions()
@@ -141,37 +160,112 @@ public class BossLilithController : MonoBehaviour, IHealth
     {
         canAttack = false;
 
-        // Activate the aura
-        shieldActive = true;
+        // Activate Reflective Aura
+        reflectiveAuraActive = true;
+        if (reflectiveAuraPrefab != null && reflectiveAuraInstance == null)
+        {
+            reflectiveAuraInstance = Instantiate(reflectiveAuraPrefab, transform.position, Quaternion.identity, transform);
+        }
+
+        Debug.Log("Reflective Aura Activated!");
+
+        yield return new WaitForSeconds(reflectiveAuraDuration); // Aura duration
+
+        DeactivateReflectiveAura();
 
         yield return new WaitForSeconds(attackCooldown);
         canAttack = true;
     }
 
-    private IEnumerator BloodSpikes()
+    private void DeactivateReflectiveAura()
     {
-        canAttack = false;
+        reflectiveAuraActive = false;
 
-        // Activate blood spikes
-        // Instantiate(bloodSpikeEffect, transform.position, Quaternion.identity);
+        if (reflectiveAuraInstance != null)
+        {
+            Destroy(reflectiveAuraInstance);
+        }
 
-        yield return new WaitForSeconds(attackCooldown);
-        canAttack = true;
+        Debug.Log("Reflective Aura Deactivated!");
     }
+
+    private GameObject activeBloodSpike; // Track active Blood Spike instance
+
+private IEnumerator BloodSpikes()
+{
+    canAttack = false;
+
+    Debug.Log("Blood Spike Activated!");
+
+    // Check if a spike is already active
+    if (activeBloodSpike == null && bloodSpikePrefab != null && bloodSpikeSpawnPoint != null)
+    {
+        // Spawn and activate the blood spike
+        activeBloodSpike = Instantiate(bloodSpikePrefab, bloodSpikeSpawnPoint.position, bloodSpikeSpawnPoint.rotation);
+        Debug.Log($"Blood Spike spawned at {bloodSpikeSpawnPoint.position}");
+    }
+    else if (activeBloodSpike != null)
+    {
+        // Reactivate the existing blood spike if deactivated
+        activeBloodSpike.SetActive(true);
+    }
+    else
+    {
+        Debug.LogError("Blood Spike Prefab or Spawn Point is not assigned!");
+    }
+
+    // Check for Wanderer within range
+    if (wanderer != null)
+    {
+        float distanceToWanderer = Vector3.Distance(bloodSpikeSpawnPoint.position, wanderer.position);
+        if (distanceToWanderer <= bloodSpikeRange)
+        {
+            WandererController wandererController = wanderer.GetComponent<WandererController>();
+            if (wandererController != null)
+            {
+                wandererController.TakeDamage(15); // Apply damage
+                Debug.Log("Wanderer hit by Blood Spike! Health reduced by 15.");
+            }
+        }
+    }
+
+    // Keep the blood spike active for a duration
+    yield return new WaitForSeconds(2f); // Adjust duration as needed
+
+    // Deactivate the blood spike
+    if (activeBloodSpike != null)
+    {
+        activeBloodSpike.SetActive(false);
+        Debug.Log("Blood Spike Deactivated!");
+    }
+
+    yield return new WaitForSeconds(attackCooldown);
+    canAttack = true;
+}
 
     public void TakeDamage(int damage)
     {
         if (!isAlive) return;
 
-        if (shieldActive)
+        if (reflectiveAuraActive)
+        {
+            ReflectDamage();
+        }
+        else if (shieldActive)
         {
             currentShieldHealth -= damage;
 
             if (currentShieldHealth <= 0)
             {
                 shieldActive = false;
-                currentShieldHealth = 0;
-                Debug.Log("Shield destroyed!");
+
+                // Apply remaining damage to Lilith
+                int overflowDamage = -currentShieldHealth;
+                currentHealth -= overflowDamage;
+
+                Debug.Log("Shield destroyed! Remaining damage applied to Lilith.");
+                DestroyShieldVisual();
+                StartCoroutine(RegenerateShield());
             }
         }
         else
@@ -192,12 +286,53 @@ public class BossLilithController : MonoBehaviour, IHealth
         }
     }
 
+    private void ReflectDamage()
+    {
+        if (wanderer != null)
+        {
+            WandererController wandererController = wanderer.GetComponent<WandererController>();
+            wandererController?.TakeDamage(reflectiveDamage);
+            Debug.Log($"Reflected {reflectiveDamage} damage to the Wanderer!");
+        }
+
+        // Automatically deactivate Reflective Aura after reflection
+        DeactivateReflectiveAura();
+    }
+
+    private void CreateShieldVisual()
+    {
+        if (shieldVisualPrefab != null && shieldVisual == null)
+        {
+            shieldVisual = Instantiate(shieldVisualPrefab, transform.position, Quaternion.identity, transform);
+        }
+    }
+
+    private void DestroyShieldVisual()
+    {
+        if (shieldVisual != null)
+        {
+            Destroy(shieldVisual);
+        }
+    }
+
+    private IEnumerator RegenerateShield()
+    {
+        Debug.Log("Shield regeneration started.");
+        yield return new WaitForSeconds(10f);
+
+        shieldActive = true;
+        currentShieldHealth = shieldHealth;
+        CreateShieldVisual();
+        Debug.Log("Shield regenerated!");
+    }
+
     private void EnterPhase2()
     {
         phase = 2;
         currentHealth = maxHealthPhase2;
         currentShieldHealth = shieldHealth;
         shieldActive = true;
+        CreateShieldVisual();
 
         TriggerPhase2();
 
@@ -212,7 +347,6 @@ public class BossLilithController : MonoBehaviour, IHealth
 
         Debug.Log("Lilith has been defeated!");
 
-        // Destroy Lilith after the animation
         Destroy(gameObject, 5f);
     }
 
