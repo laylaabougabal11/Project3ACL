@@ -13,7 +13,7 @@ public class EndGateController : MonoBehaviour
         if (other.CompareTag("Wanderer"))
         {
             WandererController wanderer = other.GetComponent<WandererController>();
-            if (wanderer != null && wanderer.RuneFragments >= requiredRuneFragments)
+            if (wanderer != null && wanderer.runeFragments >= requiredRuneFragments)
             {
                 UnlockGate();
                 TransitionToBossScene();

@@ -21,15 +21,40 @@ public class BossLilithController : MonoBehaviour, IHealth
     // Combat properties
     public float attackCooldown = 2f;
     private bool canAttack = true;
+    private bool alternateAttack = false; // For alternating attacks in Phase 2
+
+    // Reflective Aura properties
+    [Header("Reflective Aura Settings")]
+    public GameObject reflectiveAuraPrefab; // Prefab for Reflective Aura visual
+    private GameObject reflectiveAuraInstance;
+    private bool reflectiveAuraActive = false;
+    public int reflectiveDamage = 15; // Damage reflected to the Wanderer
+    public float reflectiveAuraDuration = 5f; // Duration of Reflective Aura
+
+    private bool hasTransitionedToPhase2 = false;
+
+    // Blood Spikes properties
+    [Header("Blood Spikes Settings")]
+    public GameObject bloodSpikePrefab; // Prefab for Blood Spikes
+    public Transform bloodSpikeSpawnPoint; // Location to spawn Blood Spikes
+
+    // Shield Visual
+    public GameObject shieldVisualPrefab;
+    private GameObject shieldVisual;
 
     // References
     private Animator animator;
     private Transform wanderer;
 
-    // Attack effects
-    public GameObject minionPrefab; // Prefab for summoning minions
-    // public GameObject divebombEffect;
-    // public GameObject bloodSpikeEffect;
+    public GameObject minionPrefab; // Minion prefab for summoning
+
+    public float bloodSpikeRange = 5f; // Medium range for Blood Spike effect
+
+    public GameObject WinScreen;
+    public GameObject LoseScreen;
+
+    public GameObject HealthBar;
+    public GameObject BossHealthBar;
 
     void Start()
     {
@@ -40,10 +65,14 @@ public class BossLilithController : MonoBehaviour, IHealth
 
         // Initialize health for Phase 1
         currentHealth = maxHealthPhase1;
+
+        animator.SetBool("hasTransitionedToPhase2", false); // Ensure Phase 2 animation is disabled initially
     }
 
     void Update()
     {
+        Debug.Log(currentHealth);
+        Debug.Log(currentShieldHealth);
         if (!isAlive) return;
 
         LookAtWanderer();
@@ -54,11 +83,18 @@ public class BossLilithController : MonoBehaviour, IHealth
             {
                 HandlePhase1Attacks();
             }
-            else
+            else if (phase == 2)
             {
                 HandlePhase2Attacks();
             }
         }
+    if (wanderer.GetComponent<WandererController>().CurrentHealth <= 0)
+        {
+            HealthBar.SetActive(false);
+            BossHealthBar.SetActive(false);
+            LoseScreen.SetActive(true);
+        }
+        
     }
 
     private void LookAtWanderer()
@@ -87,16 +123,18 @@ public class BossLilithController : MonoBehaviour, IHealth
 
     private void HandlePhase2Attacks()
     {
-        if (shieldActive)
-        {
-            TriggerReflectiveAura();
-            StartCoroutine(ReflectiveAura());
-        }
-        else
+        if (alternateAttack && !reflectiveAuraActive)
         {
             TriggerBloodSpikes();
             StartCoroutine(BloodSpikes());
         }
+        else
+        {
+            TriggerReflectiveAura();
+            StartCoroutine(ReflectiveAura());
+        }
+
+        alternateAttack = !alternateAttack; // Alternate between Reflective Aura and Blood Spikes
     }
 
     private IEnumerator SummonMinions()
@@ -141,80 +179,217 @@ public class BossLilithController : MonoBehaviour, IHealth
     {
         canAttack = false;
 
-        // Activate the aura
-        shieldActive = true;
+        // Activate Reflective Aura
+        reflectiveAuraActive = true;
+        if (reflectiveAuraPrefab != null && reflectiveAuraInstance == null)
+        {
+            reflectiveAuraInstance = Instantiate(reflectiveAuraPrefab, transform.position, Quaternion.identity, transform);
+        }
+
+        Debug.Log("Reflective Aura Activated!");
+
+        yield return new WaitForSeconds(reflectiveAuraDuration); // Aura duration
+
+        DeactivateReflectiveAura();
 
         yield return new WaitForSeconds(attackCooldown);
         canAttack = true;
     }
 
-    private IEnumerator BloodSpikes()
+    private void DeactivateReflectiveAura()
     {
-        canAttack = false;
+        reflectiveAuraActive = false;
 
-        // Activate blood spikes
-        // Instantiate(bloodSpikeEffect, transform.position, Quaternion.identity);
+        if (reflectiveAuraInstance != null)
+        {
+            Destroy(reflectiveAuraInstance);
+        }
 
-        yield return new WaitForSeconds(attackCooldown);
-        canAttack = true;
+        Debug.Log("Reflective Aura Deactivated!");
     }
+
+    private GameObject activeBloodSpike; // Track active Blood Spike instance
+
+private IEnumerator BloodSpikes()
+{
+    canAttack = false;
+
+    Debug.Log("Blood Spike Activated!");
+
+    // Check if a spike is already active
+    if (activeBloodSpike == null && bloodSpikePrefab != null && bloodSpikeSpawnPoint != null)
+    {
+        // Spawn and activate the blood spike
+        activeBloodSpike = Instantiate(bloodSpikePrefab, bloodSpikeSpawnPoint.position, bloodSpikeSpawnPoint.rotation);
+        Debug.Log($"Blood Spike spawned at {bloodSpikeSpawnPoint.position}");
+    }
+    else if (activeBloodSpike != null)
+    {
+        // Reactivate the existing blood spike if deactivated
+        activeBloodSpike.SetActive(true);
+    }
+    else
+    {
+        Debug.LogError("Blood Spike Prefab or Spawn Point is not assigned!");
+    }
+
+    // Check for Wanderer within range
+    if (wanderer != null)
+    {
+        float distanceToWanderer = Vector3.Distance(bloodSpikeSpawnPoint.position, wanderer.position);
+        if (distanceToWanderer <= bloodSpikeRange)
+        {
+            WandererController wandererController = wanderer.GetComponent<WandererController>();
+            if (wandererController != null)
+            {
+                wandererController.TakeDamage(15); // Apply damage
+                Debug.Log("Wanderer hit by Blood Spike! Health reduced by 15.");
+            }
+        }
+    }
+
+    // Keep the blood spike active for a duration
+    yield return new WaitForSeconds(2f); // Adjust duration as needed
+
+    // Deactivate the blood spike
+    if (activeBloodSpike != null)
+    {
+        activeBloodSpike.SetActive(false);
+        Debug.Log("Blood Spike Deactivated!");
+    }
+
+    yield return new WaitForSeconds(attackCooldown);
+    canAttack = true;
+}
 
     public void TakeDamage(int damage)
+{
+    if (!isAlive) return;
+
+    if (reflectiveAuraActive)
     {
-        if (!isAlive) return;
+        ReflectDamage();
+        return; // No direct health changes during Reflective Aura
+    }
 
-        if (shieldActive)
+    if (shieldActive)
+    {
+        currentShieldHealth -= damage;
+
+        if (currentShieldHealth <= 0)
         {
-            currentShieldHealth -= damage;
-
-            if (currentShieldHealth <= 0)
-            {
-                shieldActive = false;
-                currentShieldHealth = 0;
-                Debug.Log("Shield destroyed!");
-            }
+            shieldActive = false;
+            int overflowDamage = -currentShieldHealth; // Carry remaining damage to health
+            currentHealth -= overflowDamage;
+            DestroyShieldVisual();
+            StartCoroutine(RegenerateShield());
         }
-        else
-        {
-            currentHealth -= damage;
+    }
+    else
+    {
+        currentHealth -= damage;
 
-            if (currentHealth <= 0)
+        if (currentHealth <= 0)
+        {
+            if (phase == 1 && !hasTransitionedToPhase2)
             {
-                if (phase == 1)
-                {
-                    EnterPhase2();
-                }
-                else
-                {
-                    Die();
-                }
+                EnterPhase2(); // Transition to Phase 2 instead of dying
+            }
+            else if (phase == 2)
+            {
+                Die(); // Only die in Phase 2 when health reaches 0
             }
         }
     }
+}
 
-    private void EnterPhase2()
+
+    private void ReflectDamage()
     {
-        phase = 2;
-        currentHealth = maxHealthPhase2;
-        currentShieldHealth = shieldHealth;
+        if (wanderer != null)
+        {
+            WandererController wandererController = wanderer.GetComponent<WandererController>();
+            wandererController?.TakeDamage(reflectiveDamage);
+            Debug.Log($"Reflected {reflectiveDamage} damage to the Wanderer!");
+        }
+
+        // Automatically deactivate Reflective Aura after reflection
+        DeactivateReflectiveAura();
+    }
+
+    private void CreateShieldVisual()
+    {
+        if (shieldVisualPrefab != null && shieldVisual == null)
+        {
+            shieldVisual = Instantiate(shieldVisualPrefab, transform.position, Quaternion.identity, transform);
+        }
+    }
+
+    private void DestroyShieldVisual()
+    {
+        if (shieldVisual != null)
+        {
+            Destroy(shieldVisual);
+        }
+    }
+
+    private IEnumerator RegenerateShield()
+    {
+        Debug.Log("Shield regeneration started.");
+        yield return new WaitForSeconds(10f);
+
         shieldActive = true;
-
-        TriggerPhase2();
-
-        Debug.Log("Transitioned to Phase 2!");
+        currentShieldHealth = shieldHealth;
+        CreateShieldVisual();
+        Debug.Log("Shield regenerated!");
     }
+
+private void EnterPhase2()
+{
+    if (hasTransitionedToPhase2) return; // Prevent multiple transitions
+
+    hasTransitionedToPhase2 = true; // Mark as transitioned
+    phase = 2;
+
+    currentHealth = maxHealthPhase2;
+    currentShieldHealth = shieldHealth;
+    shieldActive = true;
+
+    CreateShieldVisual();
+
+    // Trigger Phase 2 animation and delayed reset
+    StartCoroutine(HandlePhase2Transition());
+}
+
+private IEnumerator HandlePhase2Transition()
+{
+    animator.SetBool("hasTransitionedToPhase2", true); // Enable Phase 2 animation
+    Debug.Log("Transitioning to Phase 2...");
+
+    yield return new WaitForSeconds(2f); // Add delay (adjust duration as needed)
+
+    animator.SetBool("hasTransitionedToPhase2", false); // Reset animation trigger
+    Debug.Log("Transitioned to Phase 2!");
+}
+
 
     private void Die()
-    {
-        isAlive = false;
+{
+    if (!isAlive) return;
 
-        TriggerDie();
+    isAlive = false;
 
-        Debug.Log("Lilith has been defeated!");
+    TriggerDie(); // Trigger the death animation
+    Debug.Log("Lilith has been defeated!");
 
-        // Destroy Lilith after the animation
-        Destroy(gameObject, 5f);
-    }
+    Destroy(gameObject, 5f); // Destroy Lilith after animation plays
+    HealthBar.SetActive(false);
+    BossHealthBar.SetActive(false);
+    WinScreen.SetActive(true);
+
+
+}
+
 
     private bool MinionsDefeated()
     {

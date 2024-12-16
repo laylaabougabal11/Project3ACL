@@ -10,9 +10,10 @@ public class DemonController : MonoBehaviour, IHealth
 
     public int CurrentHealth => currentHealth;
     public int MaxHealth => maxHealth;
-
     public bool IsAlive => currentHealth > 0; // Returns true if health is greater than 0
 
+    private bool isStunned = false;
+    private float stunEndTime = 0f;
 
     public float patrolRadius = 15f;
     public float detectionRange = 20f;
@@ -67,26 +68,50 @@ public class DemonController : MonoBehaviour, IHealth
     {
         if (!isAlive) return;
 
-        // Update the blend tree parameter for movement
-        if (navAgent != null)
+        if (isStunned)
         {
-            animator.SetFloat("Speed", navAgent.velocity.magnitude);
+            if (Time.time >= stunEndTime)
+            {
+                Unstun();
+            }
+            return;
         }
 
         if (Vector3.Distance(transform.position, target.position) <= detectionRange)
         {
-            isAlerted = true; // Set the field based on detection logic
+            isAlerted = true;
         }
         else
         {
-            isAlerted = false; // Reset if the target is out of range
+            isAlerted = false;
         }
-
 
         if (isAlerted)
         {
             EngageTarget();
         }
+    }
+
+    public void Stun(float duration)
+    {
+        isStunned = true;
+        stunEndTime = Time.time + duration;
+        if (navAgent != null && navAgent.isOnNavMesh)
+        {
+            navAgent.isStopped = true;
+        }
+        animator.SetTrigger("StunTrigger");
+        Debug.Log($"{gameObject.name} is stunned for {duration} seconds.");
+    }
+
+    public void Unstun()
+    {
+        isStunned = false;
+        if (navAgent != null && navAgent.isOnNavMesh)
+        {
+            navAgent.isStopped = false;
+        }
+        Debug.Log($"{gameObject.name} is no longer stunned.");
     }
 
     public void BecomeAlerted()

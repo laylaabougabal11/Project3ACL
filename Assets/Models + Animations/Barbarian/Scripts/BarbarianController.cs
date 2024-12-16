@@ -20,7 +20,6 @@ public class Barbarian : WandererController
     public float chargeSpeed = 10f;
     public int bossDamage = 20;
     private LayerMask walkableLayer;
-    private LayerMask enemyLayer;
 
     private bool isCharging = false;
     private Vector3 chargeTarget;
@@ -31,7 +30,6 @@ public class Barbarian : WandererController
     protected override void Start()
     {
         base.Start();
-        enemyLayer = LayerMask.GetMask("enemyLayer");
         walkableLayer = LayerMask.GetMask("Terrain");
 
         cooldownTimers = new Dictionary<string, float>

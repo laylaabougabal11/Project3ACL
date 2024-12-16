@@ -52,5 +52,5 @@
     "Temp/": true
   },
   "dotnet.defaultSolution": "Project3ACL.sln",
-  "cSpell.words": ["lerp", "Slerp", "UGUI"]
+  "cSpell.words": ["Cinemachine", "lerp", "Slerp", "UGUI", "Unstun"]
 }

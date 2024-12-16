@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: c90b0e1c13a5da24a8475614415c3195
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - potionModel: {fileID: 7253053332200137963, guid: 2b3d7554555324046900de32fa63b8af, type: 3}
+  - potionIconPrefab: {fileID: 3745526116489114119, guid: f5d2dcf220e1e184790a2dee81e58fe5, type: 3}
+  - potionPanel: {instanceID: 0}
+  - fireballPrefab: {instanceID: 0}
+  - fireballSpawnPoint: {instanceID: 0}
+  - clonePrefab: {instanceID: 0}
+  - cloneExplosionEffectPrefab: {instanceID: 0}
+  - infernoPrefab: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
