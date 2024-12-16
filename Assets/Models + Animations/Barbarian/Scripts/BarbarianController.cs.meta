@@ -3,7 +3,10 @@ guid: 7c1f8c81518ceaa4dadc43ccad5bc59b
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - potionModel: {fileID: 1789440060859632625, guid: 4d9564c20613ba2498cf36aca14dfc74, type: 3}
+  - shieldEffect: {instanceID: 0}
+  - maelstromEffect: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

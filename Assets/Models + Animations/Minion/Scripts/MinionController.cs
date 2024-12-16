@@ -10,6 +10,8 @@ public class MinionController : MonoBehaviour, IHealth
 
     public int CurrentHealth => currentHealth;
     public int MaxHealth => maxHealth;
+    public bool IsAlive => currentHealth > 0; // Returns true if health is greater than 0
+
 
     public float detectionRange = 15f; // Range at which Minion becomes alerted
     public float attackRange = 2f;     // Attack range for engaging Wanderer
@@ -18,6 +20,7 @@ public class MinionController : MonoBehaviour, IHealth
 
     private NavMeshAgent navAgent;
     private bool isAlerted = false;
+    public bool IsAlerted => isAlerted;
     private bool canAttack = true;
 
     private Animator animator; // Reference to Animator component
@@ -44,11 +47,15 @@ public class MinionController : MonoBehaviour, IHealth
     {
         if (!isAlive) return; // Skip Update logic if Minion is dead
 
-        // Check if the Wanderer is within detection range
-        if (target != null && Vector3.Distance(transform.position, target.position) <= detectionRange)
+        if (Vector3.Distance(transform.position, target.position) <= detectionRange)
         {
-            isAlerted = true; // Minion becomes alerted
+            isAlerted = true; // Set the field based on detection logic
         }
+        else
+        {
+            isAlerted = false; // Reset if the target is out of range
+        }
+
 
         if (isAlerted)
         {
@@ -60,6 +67,20 @@ public class MinionController : MonoBehaviour, IHealth
             animator.SetFloat("Speed", 0);
         }
     }
+
+    public void BecomeAlerted()
+    {
+        isAlerted = true;
+        navAgent.isStopped = false;
+    }
+
+    public void BecomeNonAggressive()
+    {
+        isAlerted = false;
+        navAgent.isStopped = true;
+        animator.SetFloat("Speed", 0);
+    }
+
 
     private void EngageTarget()
     {
@@ -153,17 +174,27 @@ public class MinionController : MonoBehaviour, IHealth
 
     private void Die()
     {
+        if (!isAlive) return; // Prevent multiple calls to Die
+
         isAlive = false; // Mark as dead
         Debug.Log($"{gameObject.name} has died.");
 
-        // Notify the camp controller, if one exists
-        camp?.DeregisterEnemy(gameObject);
-
-        // Stop the NavMeshAgent
-        if (navAgent != null)
+        // Notify the camp controller
+        EnemyCampController camp = GetComponentInParent<EnemyCampController>();
+        if (camp != null)
         {
-            navAgent.isStopped = true;
-            navAgent.enabled = false;
+            camp.DeregisterEnemy(gameObject);
+        }
+
+        // Check if the NavMeshAgent is valid and active
+        if (navAgent != null && navAgent.isOnNavMesh)
+        {
+            navAgent.isStopped = true; // Stop the agent
+            navAgent.enabled = false; // Disable the agent
+        }
+        else
+        {
+            Debug.LogWarning("NavMeshAgent is not active or not on a NavMesh.");
         }
 
         // Trigger death animation
@@ -183,6 +214,7 @@ public class MinionController : MonoBehaviour, IHealth
         float animationLength = GetAnimationLength("Die");
         Destroy(gameObject, animationLength);
     }
+
 
     private void RewardXP()
     {

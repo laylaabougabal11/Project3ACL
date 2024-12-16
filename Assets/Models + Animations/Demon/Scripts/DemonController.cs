@@ -11,6 +11,9 @@ public class DemonController : MonoBehaviour, IHealth
     public int CurrentHealth => currentHealth;
     public int MaxHealth => maxHealth;
 
+    public bool IsAlive => currentHealth > 0; // Returns true if health is greater than 0
+
+
     public float patrolRadius = 15f;
     public float detectionRange = 20f;
     public float attackRange = 2f;
@@ -22,6 +25,8 @@ public class DemonController : MonoBehaviour, IHealth
     private NavMeshAgent navAgent;
     private Vector3 campCenter;
     private bool isAlerted = false;
+
+    public bool IsAlerted => isAlerted;
     private bool canAttack = true;
     private bool isAlive = true;
 
@@ -68,16 +73,35 @@ public class DemonController : MonoBehaviour, IHealth
             animator.SetFloat("Speed", navAgent.velocity.magnitude);
         }
 
-        if (target != null && Vector3.Distance(transform.position, target.position) <= detectionRange)
+        if (Vector3.Distance(transform.position, target.position) <= detectionRange)
         {
-            isAlerted = true;
+            isAlerted = true; // Set the field based on detection logic
         }
+        else
+        {
+            isAlerted = false; // Reset if the target is out of range
+        }
+
 
         if (isAlerted)
         {
             EngageTarget();
         }
     }
+
+    public void BecomeAlerted()
+    {
+        isAlerted = true;
+        navAgent.isStopped = false;
+    }
+
+    public void BecomeNonAggressive()
+    {
+        isAlerted = false;
+        navAgent.isStopped = true;
+        animator.SetFloat("Speed", 0);
+    }
+
 
     private void EngageTarget()
     {
@@ -171,6 +195,7 @@ public class DemonController : MonoBehaviour, IHealth
     {
         while (!isAlerted && isAlive)
         {
+            // Check if NavMeshAgent is valid and active
             if (navAgent == null || !navAgent.enabled || !navAgent.isOnNavMesh) yield break;
 
             Vector3 randomPoint = GetRandomPointWithinRadius(campCenter, patrolRadius);
@@ -180,15 +205,18 @@ public class DemonController : MonoBehaviour, IHealth
             {
                 navAgent.SetDestination(hit.position);
 
-                while (navAgent.remainingDistance > navAgent.stoppingDistance)
+                // Wait until the agent reaches its destination or something invalidates the patrol
+                while (isAlive && navAgent.remainingDistance > navAgent.stoppingDistance && navAgent.isOnNavMesh)
                 {
                     yield return null;
                 }
             }
 
+            // Wait for a short duration before patrolling to another point
             yield return new WaitForSeconds(2f);
         }
     }
+
 
     private Vector3 GetRandomPointWithinRadius(Vector3 center, float radius)
     {

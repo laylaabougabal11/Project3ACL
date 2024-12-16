@@ -11,6 +11,7 @@ TagManager:
   - Demon
   - Rune
   - Potion
+  - Gate
   layers:
   - Default
   - TransparentFX
