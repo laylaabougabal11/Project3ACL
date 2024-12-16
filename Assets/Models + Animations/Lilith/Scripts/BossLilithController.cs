@@ -31,6 +31,8 @@ public class BossLilithController : MonoBehaviour, IHealth
     public int reflectiveDamage = 15; // Damage reflected to the Wanderer
     public float reflectiveAuraDuration = 5f; // Duration of Reflective Aura
 
+    private bool hasTransitionedToPhase2 = false;
+
     // Blood Spikes properties
     [Header("Blood Spikes Settings")]
     public GameObject bloodSpikePrefab; // Prefab for Blood Spikes
@@ -48,6 +50,12 @@ public class BossLilithController : MonoBehaviour, IHealth
 
     public float bloodSpikeRange = 5f; // Medium range for Blood Spike effect
 
+    public GameObject WinScreen;
+    public GameObject LoseScreen;
+
+    public GameObject HealthBar;
+    public GameObject BossHealthBar;
+
     void Start()
     {
         animator = GetComponent<Animator>();
@@ -57,10 +65,14 @@ public class BossLilithController : MonoBehaviour, IHealth
 
         // Initialize health for Phase 1
         currentHealth = maxHealthPhase1;
+
+        animator.SetBool("hasTransitionedToPhase2", false); // Ensure Phase 2 animation is disabled initially
     }
 
     void Update()
     {
+        Debug.Log(currentHealth);
+        Debug.Log(currentShieldHealth);
         if (!isAlive) return;
 
         LookAtWanderer();
@@ -76,6 +88,13 @@ public class BossLilithController : MonoBehaviour, IHealth
                 HandlePhase2Attacks();
             }
         }
+    if (wanderer.GetComponent<WandererController>().CurrentHealth <= 0)
+        {
+            HealthBar.SetActive(false);
+            BossHealthBar.SetActive(false);
+            LoseScreen.SetActive(true);
+        }
+        
     }
 
     private void LookAtWanderer()
@@ -244,47 +263,46 @@ private IEnumerator BloodSpikes()
 }
 
     public void TakeDamage(int damage)
+{
+    if (!isAlive) return;
+
+    if (reflectiveAuraActive)
     {
-        if (!isAlive) return;
+        ReflectDamage();
+        return; // No direct health changes during Reflective Aura
+    }
 
-        if (reflectiveAuraActive)
+    if (shieldActive)
+    {
+        currentShieldHealth -= damage;
+
+        if (currentShieldHealth <= 0)
         {
-            ReflectDamage();
+            shieldActive = false;
+            int overflowDamage = -currentShieldHealth; // Carry remaining damage to health
+            currentHealth -= overflowDamage;
+            DestroyShieldVisual();
+            StartCoroutine(RegenerateShield());
         }
-        else if (shieldActive)
+    }
+    else
+    {
+        currentHealth -= damage;
+
+        if (currentHealth <= 0)
         {
-            currentShieldHealth -= damage;
-
-            if (currentShieldHealth <= 0)
+            if (phase == 1 && !hasTransitionedToPhase2)
             {
-                shieldActive = false;
-
-                // Apply remaining damage to Lilith
-                int overflowDamage = -currentShieldHealth;
-                currentHealth -= overflowDamage;
-
-                Debug.Log("Shield destroyed! Remaining damage applied to Lilith.");
-                DestroyShieldVisual();
-                StartCoroutine(RegenerateShield());
+                EnterPhase2(); // Transition to Phase 2 instead of dying
             }
-        }
-        else
-        {
-            currentHealth -= damage;
-
-            if (currentHealth <= 0)
+            else if (phase == 2)
             {
-                if (phase == 1)
-                {
-                    EnterPhase2();
-                }
-                else
-                {
-                    Die();
-                }
+                Die(); // Only die in Phase 2 when health reaches 0
             }
         }
     }
+}
+
 
     private void ReflectDamage()
     {
@@ -326,29 +344,52 @@ private IEnumerator BloodSpikes()
         Debug.Log("Shield regenerated!");
     }
 
-    private void EnterPhase2()
-    {
-        phase = 2;
-        currentHealth = maxHealthPhase2;
-        currentShieldHealth = shieldHealth;
-        shieldActive = true;
-        CreateShieldVisual();
+private void EnterPhase2()
+{
+    if (hasTransitionedToPhase2) return; // Prevent multiple transitions
 
-        TriggerPhase2();
+    hasTransitionedToPhase2 = true; // Mark as transitioned
+    phase = 2;
 
-        Debug.Log("Transitioned to Phase 2!");
-    }
+    currentHealth = maxHealthPhase2;
+    currentShieldHealth = shieldHealth;
+    shieldActive = true;
+
+    CreateShieldVisual();
+
+    // Trigger Phase 2 animation and delayed reset
+    StartCoroutine(HandlePhase2Transition());
+}
+
+private IEnumerator HandlePhase2Transition()
+{
+    animator.SetBool("hasTransitionedToPhase2", true); // Enable Phase 2 animation
+    Debug.Log("Transitioning to Phase 2...");
+
+    yield return new WaitForSeconds(2f); // Add delay (adjust duration as needed)
+
+    animator.SetBool("hasTransitionedToPhase2", false); // Reset animation trigger
+    Debug.Log("Transitioned to Phase 2!");
+}
+
 
     private void Die()
-    {
-        isAlive = false;
+{
+    if (!isAlive) return;
 
-        TriggerDie();
+    isAlive = false;
 
-        Debug.Log("Lilith has been defeated!");
+    TriggerDie(); // Trigger the death animation
+    Debug.Log("Lilith has been defeated!");
 
-        Destroy(gameObject, 5f);
-    }
+    Destroy(gameObject, 5f); // Destroy Lilith after animation plays
+    HealthBar.SetActive(false);
+    BossHealthBar.SetActive(false);
+    WinScreen.SetActive(true);
+
+
+}
+
 
     private bool MinionsDefeated()
     {
