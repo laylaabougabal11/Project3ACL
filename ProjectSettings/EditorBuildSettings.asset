@@ -20,7 +20,4 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/BossScene.unity
     guid: 4e0b2b51b6662be4f9d98e95645aff16
-  - enabled: 1
-    path: Assets/Scenes/Pause.unity
-    guid: 4386c53c72757e6429ee602d18c34afd
   m_configObjects: {}

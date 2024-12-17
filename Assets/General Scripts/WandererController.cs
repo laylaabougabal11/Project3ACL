@@ -41,6 +41,11 @@ public abstract class WandererController : MonoBehaviour, IHealth
     public GameObject winPanel;  // Reference to the Win panel
     public GameObject losePanel; // Reference to the Lose panel
 
+    private bool isInvincible = false; // Invincibility toggle
+    private bool isSlowMotion = false; // Slow-motion toggle
+    private bool cooldownToggle = false; // Cooldown toggle
+
+
 
     protected virtual void Awake()
     {
@@ -80,11 +85,65 @@ public abstract class WandererController : MonoBehaviour, IHealth
     protected virtual void Update()
     {
         HandleMouseClick();
+        HandleCheats();
 
         if (navMeshAgent != null && animator != null)
         {
             float speed = navMeshAgent.velocity.magnitude;
             animator.SetFloat("Speed", speed);
+        }
+    }
+
+    protected void HandleCheats()
+    {
+        // Heal: H key
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            currentHealth = Mathf.Clamp(currentHealth + 20, 0, maxHealth);
+            Debug.Log($"Cheat Activated: Heal. Current Health: {currentHealth}");
+        }
+
+        // Decrement Health: D key
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            if (!isInvincible) // Prevent decrement if invincible
+            {
+                currentHealth = Mathf.Clamp(currentHealth - 20, 0, maxHealth);
+                Debug.Log($"Cheat Activated: Decrement Health. Current Health: {currentHealth}");
+            }
+            else
+            {
+                Debug.Log("Invincibility is ON. Health cannot be decremented.");
+            }
+        }
+
+        // Toggle Invincibility: I key
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            isInvincible = !isInvincible;
+            Debug.Log($"Cheat Activated: Invincibility {(isInvincible ? "Enabled" : "Disabled")}.");
+        }
+
+        // Toggle Slow Motion: M key
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            isSlowMotion = !isSlowMotion;
+            Time.timeScale = isSlowMotion ? 0.5f : 1f;
+            Debug.Log($"Cheat Activated: Slow Motion {(isSlowMotion ? "Enabled" : "Disabled")}.");
+        }
+
+        // Gain Ability Points: A key
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            abilityPoints++;
+            Debug.Log($"Cheat Activated: Gained Ability Point. Total Ability Points: {abilityPoints}");
+        }
+
+        // Gain XP: X key
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            GainXP(100);
+            Debug.Log($"Cheat Activated: Gained XP. Current XP: {currentXP}");
         }
     }
 
