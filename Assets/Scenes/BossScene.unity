@@ -1078,6 +1078,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   virtualCamera: {fileID: 1544365259}
+  bossHPPanel: {fileID: 1882687655}
+  runePanel: {fileID: 1882687654}
 --- !u!1001 &257524490
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6354,6 +6356,16 @@ GameObject:
 --- !u!1 &1882687653 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1054520443247851794, guid: 3f88fe3db2cd595418d02a9bf462967c, type: 3}
+  m_PrefabInstance: {fileID: 1882687651}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1882687654 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6515805845268378321, guid: 3f88fe3db2cd595418d02a9bf462967c, type: 3}
+  m_PrefabInstance: {fileID: 1882687651}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1882687655 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2176668115195200824, guid: 3f88fe3db2cd595418d02a9bf462967c, type: 3}
   m_PrefabInstance: {fileID: 1882687651}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1915936107

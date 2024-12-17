@@ -259,18 +259,36 @@ public abstract class WandererController : MonoBehaviour, IHealth
 
     private void UpdatePotionUI()
     {
-        // Clear existing potion icons
-        foreach (Transform child in potionPanel)
+        // Check if the potion UI panel or its child objects exist
+        if (potionPanel == null)
         {
-            Destroy(child.gameObject);
+            Debug.LogWarning("Potion panel is missing! Cannot update the UI.");
+            return;
         }
 
-        // Add potion icons based on the number of potions
+        // Clear existing potion icons safely
+        foreach (Transform child in potionPanel.transform)
+        {
+            if (child != null) // Add a null check
+            {
+                Destroy(child.gameObject);
+            }
+        }
+
+        // Re-create potion icons
         for (int i = 0; i < healingPotions; i++)
         {
-            Instantiate(potionIconPrefab, potionPanel);
+            if (potionIconPrefab != null) // Ensure prefab exists
+            {
+                Instantiate(potionIconPrefab, potionPanel.transform);
+            }
+            else
+            {
+                Debug.LogWarning("Potion icon prefab is missing!");
+            }
         }
     }
+
 
 
     public void AddRuneFragment()

@@ -247,6 +247,11 @@ public class Barbarian : WandererController, IAbilityCooldown
                 IHealth targetHealth = collider.GetComponent<IHealth>();
                 targetHealth?.TakeDamage(bossDamage);
             }
+
+            else if (collider.CompareTag("Destructible"))
+            {
+                Destroy(collider.gameObject);
+            }
         }
     }
 

@@ -69,8 +69,6 @@ public class BossLilithController : MonoBehaviour, IHealth
 
     void Update()
     {
-        Debug.Log(currentHealth);
-        Debug.Log(currentShieldHealth);
         if (!isAlive) return;
 
         LookAtWanderer();
