@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -5,11 +6,11 @@ using UnityEngine.AI;
 public abstract class WandererController : MonoBehaviour, IHealth
 {
     // Shared properties for all Wanderers
-    protected NavMeshAgent navMeshAgent; // Reference to NavMeshAgent
-    protected Animator animator; // Reference to Animator component
+    protected NavMeshAgent navMeshAgent;
+    protected Animator animator;
 
     public int maxHealth = 100;
-    public int currentHealth = 40;
+    public int currentHealth = 100;
     public int CurrentHealth => currentHealth;
     public int MaxHealth => maxHealth;
 
@@ -17,31 +18,35 @@ public abstract class WandererController : MonoBehaviour, IHealth
     public int currentXP = 0;
     public int currentLevel = 1;
     public int maxLevel = 4;
-    public int abilityPoints = 0; // Points to unlock abilities
+    public int abilityPoints = 0;
 
-    protected Transform selectedTarget; // Current selected target
-
-    [SerializeField] protected LayerMask enemyLayer; // Single declaration of enemyLayer
-
+    protected Transform selectedTarget;
 
     // Inventory system
-    public int runeFragments;
+    private int runeFragments;
+    public int RuneFragments => runeFragments; // Read-only property for Rune Fragments
     public int healingPotions;
+    public GameObject potionModel;
+
+    public GameObject potionIconPrefab; // Prefab for the potion icon
+    public Transform potionPanel; // Parent panel for potion icons
 
 
     // Abilities
-    private HashSet<string> unlockedAbilities = new HashSet<string>(); // Track unlocked abilities
+    private HashSet<string> unlockedAbilities = new HashSet<string>();
+
+    public LayerMask enemyLayer;
+
 
     protected virtual void Start()
     {
         enemyLayer = LayerMask.GetMask("enemyLayer");
-        // Initialize health
-        currentHealth = 100;
+
+        currentHealth = maxHealth;
 
         runeFragments = 0;
         healingPotions = 0;
 
-        // Get components on the Wanderer GameObject
         navMeshAgent = GetComponent<NavMeshAgent>();
         if (navMeshAgent == null)
         {
@@ -53,50 +58,43 @@ public abstract class WandererController : MonoBehaviour, IHealth
         {
             Debug.LogError("Animator not found on Wanderer!");
         }
+
+        // Ensure the potion is disabled at the start
+        if (potionModel != null)
+        {
+            potionModel.SetActive(false);
+        }
     }
 
     protected virtual void Update()
     {
-        HandleMouseClick(); // Handle movement based on mouse click
+        HandleMouseClick();
 
-        // Update movement animations based on agent velocity
         if (navMeshAgent != null && animator != null)
         {
-            float speed = navMeshAgent.velocity.magnitude; // Get the speed from NavMeshAgent's velocity
-            animator.SetFloat("Speed", speed); // Set Speed parameter for animations
+            float speed = navMeshAgent.velocity.magnitude;
+            animator.SetFloat("Speed", speed);
         }
-
-        HandleTargetSelection();
-
     }
 
     protected virtual void HandleMouseClick()
     {
-
-        // Ensure NavMeshAgent is active and enabled
         if (navMeshAgent == null || !navMeshAgent.isActiveAndEnabled)
         {
             Debug.LogWarning("NavMeshAgent is not active or enabled.");
             return;
         }
-        if (Input.GetMouseButtonDown(0)) // Right mouse button for movement
+
+        if (Input.GetMouseButtonDown(0)) // Left mouse button for movement
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
-                navMeshAgent.SetDestination(hit.point); // Set NavMeshAgent's destination to the point clicked
+                navMeshAgent.SetDestination(hit.point);
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            UseHealingPotion();
-        }
-    }
-
-    private void HandleTargetSelection()
-    {
-        if (Input.GetMouseButtonDown(0)) // Left mouse button
+        if (Input.GetMouseButtonDown(1)) // Right mouse button for target selection
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit))
@@ -107,32 +105,34 @@ public abstract class WandererController : MonoBehaviour, IHealth
                 }
             }
         }
+
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            UseHealingPotion();
+        }
     }
 
     public void SelectTarget(Transform target)
     {
-        // Deselect previous target
         if (selectedTarget != null)
         {
             DeselectTarget(selectedTarget);
         }
 
-        // Select new target
         selectedTarget = target;
-        HighlightTarget(selectedTarget, true); // Highlight the selected target
+        HighlightTarget(selectedTarget, true);
 
         Debug.Log($"Selected Target: {selectedTarget.name}");
     }
 
     private void DeselectTarget(Transform target)
     {
-        HighlightTarget(target, false); // Remove highlight
+        HighlightTarget(target, false);
         selectedTarget = null;
     }
 
     private void HighlightTarget(Transform target, bool highlight)
     {
-        // Optional: Add a visual effect or outline to the target
         Renderer renderer = target.GetComponent<Renderer>();
         if (renderer != null)
         {
@@ -165,14 +165,17 @@ public abstract class WandererController : MonoBehaviour, IHealth
             xpToLevelUp = 100 * currentLevel;
         }
     }
+
     private void LevelUp()
     {
         currentLevel++;
-        abilityPoints++; // Gain an ability point
-        maxHealth += 100; // Increase max health
-        currentHealth = maxHealth; // Refill health
+        abilityPoints++;
+        maxHealth += 100;
+        currentHealth = maxHealth;
 
         Debug.Log($"Level Up! Current Level: {currentLevel}, Max Health: {maxHealth}, Ability Points: {abilityPoints}");
+        FindObjectOfType<WandererHealthBar>()?.UpdateHealthBar(maxHealth, currentHealth);
+
     }
 
     public void UnlockAbility(string abilityName)
@@ -181,7 +184,6 @@ public abstract class WandererController : MonoBehaviour, IHealth
         {
             abilityPoints--;
             Debug.Log($"Unlocked ability: {abilityName}. Remaining Ability Points: {abilityPoints}");
-            // Logic for unlocking the ability permanently (e.g., enabling it in the HUD or skills list)
         }
         else
         {
@@ -193,6 +195,8 @@ public abstract class WandererController : MonoBehaviour, IHealth
     {
         healingPotions++;
         Debug.Log($"Healing Potions: {healingPotions}");
+
+        UpdatePotionUI();
     }
 
     public void UseHealingPotion()
@@ -203,16 +207,60 @@ public abstract class WandererController : MonoBehaviour, IHealth
             return;
         }
 
-        animator.SetTrigger("UsePotionTrigger"); // Trigger the upper body animation
+        // Trigger the use potion animation
+        animator.SetTrigger("UsePotionTrigger");
+
+        // Show the potion in hand
+        if (potionModel != null)
+        {
+            potionModel.SetActive(true);
+        }
 
         // Heal the character
         int healAmount = maxHealth / 2;
         currentHealth = Mathf.Clamp(currentHealth + healAmount, 0, maxHealth);
 
-        healingPotions--; // Decrease potion count
+        healingPotions--; // Reduce potion count
 
         Debug.Log($"Used potion. Current health: {currentHealth}, Potions left: {healingPotions}");
+
+        UpdatePotionUI();
+        // Hide the potion after a delay (to match animation duration)
+        StartCoroutine(HidePotionAfterUse());
     }
+
+    private IEnumerator HidePotionAfterUse()
+    {
+        Debug.Log("HidePotionAfterUse coroutine started.");
+        yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
+
+        if (potionModel != null)
+        {
+            Debug.Log("Potion model deactivated.");
+            potionModel.SetActive(false);
+        }
+        else
+        {
+            Debug.LogError("Potion model is null.");
+        }
+    }
+
+
+    private void UpdatePotionUI()
+    {
+        // Clear existing potion icons
+        foreach (Transform child in potionPanel)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // Add potion icons based on the number of potions
+        for (int i = 0; i < healingPotions; i++)
+        {
+            Instantiate(potionIconPrefab, potionPanel);
+        }
+    }
+
 
     public void AddRuneFragment()
     {
@@ -225,7 +273,11 @@ public abstract class WandererController : MonoBehaviour, IHealth
         }
     }
 
-    // Damage handling (shared logic)
+    public bool HasRequiredRuneFragments(int requiredFragments)
+    {
+        return runeFragments >= requiredFragments;
+    }
+
     public virtual void TakeDamage(int damage)
     {
         animator.SetTrigger("GetDamagedTrigger");
@@ -242,11 +294,9 @@ public abstract class WandererController : MonoBehaviour, IHealth
     protected virtual void Die()
     {
         animator.SetTrigger("DieTrigger");
-        // Disable the NavMeshAgent
         navMeshAgent.isStopped = true;
         Debug.Log("Wanderer has died!");
     }
 
-    // Abstract method for class-specific input handling (to be implemented by subclasses)
     protected abstract void HandleInputs();
 }

@@ -38,7 +38,7 @@ public class EnemyCampController : MonoBehaviour
         else
         {
             Debug.LogWarning($"No Potion found in {gameObject.name}");
-        }
+        }//
 
         // Automatically find all enemies in the camp
         foreach (Transform child in GetComponentsInChildren<Transform>())

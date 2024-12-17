@@ -25,7 +25,7 @@ public class RunePanelController : MonoBehaviour
     {
         if (wanderer != null)
         {
-            UpdateRunePanel(wanderer.runeFragments);
+            UpdateRunePanel(wanderer.RuneFragments);
         }
     }
 

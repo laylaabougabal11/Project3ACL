@@ -3,59 +3,67 @@ using UnityEngine;
 public class ArrowScript : MonoBehaviour
 {
     public float speed = 20f; // Arrow speed
-    public int damage = 5; // Damage value
-    private Vector3 target; // Target position
-    private Vector3 startPosition; // Start position
-    private float maxTravelDistance = 50f; // Maximum travel distance
-    private bool targetSet = false; // Ensures the target is set before moving
+    public int damage = 5;    // Damage value
+    private Vector3 target;   // Target position
+    private bool targetSet = false;
 
-    public void SetTarget(Vector3 targetPosition, int v)
+    [SerializeField] private LayerMask enemyLayer; // LayerMask for enemies
+
+    public void SetTarget(Vector3 targetPosition, int arrowDamage)
     {
         target = targetPosition;
-        startPosition = transform.position;
-        targetSet = true; // Mark the target as set
-        transform.LookAt(target); // Align the arrow to face the target
-        Debug.Log($"Arrow target set to: {target}, Start Position: {startPosition}");
+        damage = arrowDamage;
+        targetSet = true;
+
+        // Rotate the arrow to face the target at the start
+        RotateTowards(target);
     }
 
-    void Update()
+    private void Update()
     {
         if (!targetSet) return;
 
-        Debug.Log($"Arrow moving towards target: {target} from {transform.position}");
+        // Move towards the target
+        Vector3 direction = (target - transform.position).normalized;
         transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
 
-        //if arrow hit collided with anything
-        if (Vector3.Distance(startPosition, transform.position) >= maxTravelDistance)
+        // Continuously rotate the arrow to face the movement direction
+        if (direction != Vector3.zero)
         {
-            Debug.Log("Arrow reached its maximum travel distance.");
+            RotateTowards(target);
+        }
+
+        // Destroy the arrow if it reaches the target
+        if (Vector3.Distance(transform.position, target) <= 0.1f)
+        {
             DestroyArrow();
+        }
+    }
+
+    private void RotateTowards(Vector3 targetPosition)
+    {
+        Vector3 direction = (targetPosition - transform.position).normalized;
+        if (direction != Vector3.zero)
+        {
+            transform.rotation = Quaternion.LookRotation(direction);
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Enemy"))
+        // Only interact with enemies
+        if ((1 << other.gameObject.layer & enemyLayer) != 0)
         {
-            Debug.Log($"Hit trigger enemy! Dealing {damage} damage.");
-            DestroyArrow(); // Destroy the arrow after hitting
+            IHealth targetHealth = other.GetComponent<IHealth>();
+            if (targetHealth != null)
+            {
+                targetHealth.TakeDamage(damage);
+                Debug.Log($"Arrow hit {other.name} for {damage} damage.");
+            }
+
+            DestroyArrow();
         }
     }
-
-    //private void OnCollisionEnter(Collider other)
-    //{
-    //    if (other.CompareTag("Enemy"))
-    //    {
-    //        Debug.Log($"Hit collision enemy! Dealing {damage} damage.");
-    //        DestroyArrow(); // Destroy the arrow after hitting
-    //    }
-    //    //if collided with anythinggggg
-    //    else
-    //    {
-    //        Debug.Log("Arrow hit something else.");
-    //        DestroyArrow();
-    //    }
-    //}
 
     private void DestroyArrow()
     {

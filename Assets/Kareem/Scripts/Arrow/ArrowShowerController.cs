@@ -20,7 +20,7 @@ public class ArrowShowerController : MonoBehaviour
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, radius);
         foreach (var hitCollider in hitColliders)
         {
-            if (hitCollider.CompareTag("Enemy"))
+            if (hitCollider.CompareTag("Demon") || hitCollider.CompareTag("Minion"))
             {
                 Enemy enemy = hitCollider.GetComponent<Enemy>();
                 if (enemy != null)
@@ -32,7 +32,7 @@ public class ArrowShowerController : MonoBehaviour
             }
         }
     }
-    
+
     // Update is called once per frame
     void Update()
     {

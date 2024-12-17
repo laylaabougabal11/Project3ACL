@@ -10,10 +10,12 @@ public class DemonController : MonoBehaviour, IHealth
 
     public int CurrentHealth => currentHealth;
     public int MaxHealth => maxHealth;
+
     public bool IsAlive => currentHealth > 0; // Returns true if health is greater than 0
 
-    private bool isStunned = false;
+    private bool isStunned = false; // Indicates if the Minion is stunned
     private float stunEndTime = 0f;
+
 
     public float patrolRadius = 15f;
     public float detectionRange = 20f;
@@ -94,24 +96,37 @@ public class DemonController : MonoBehaviour, IHealth
 
     public void Stun(float duration)
     {
+        if (isStunned) return; // Prevent multiple stuns from overlapping
+
         isStunned = true;
         stunEndTime = Time.time + duration;
-        if (navAgent != null && navAgent.isOnNavMesh)
-        {
-            navAgent.isStopped = true;
-        }
-        animator.SetTrigger("StunTrigger");
-        Debug.Log($"{gameObject.name} is stunned for {duration} seconds.");
+
+        if (navAgent != null) navAgent.isStopped = true; // Stop movement
+        animator.SetBool("IsStunned", true); // Trigger optional stun animation
     }
 
     public void Unstun()
     {
         isStunned = false;
-        if (navAgent != null && navAgent.isOnNavMesh)
+
+        if (navAgent != null) navAgent.isStopped = false; // Resume movement
+        animator.SetBool("IsStunned", false); // End stun animation
+    }
+
+    private void EngageTarget()
+    {
+        if (!isAlive || navAgent == null || !navAgent.enabled || target == null) return;
+
+        float distanceToTarget = Vector3.Distance(transform.position, target.position);
+
+        if (distanceToTarget <= attackRange && canAttack)
         {
-            navAgent.isStopped = false;
+            StartCoroutine(AttackPattern());
         }
-        Debug.Log($"{gameObject.name} is no longer stunned.");
+        else if (distanceToTarget <= detectionRange)
+        {
+            navAgent.SetDestination(target.position);
+        }
     }
 
     public void BecomeAlerted()
@@ -127,34 +142,6 @@ public class DemonController : MonoBehaviour, IHealth
         animator.SetFloat("Speed", 0);
     }
 
-
-    private void EngageTarget()
-    {
-        if (!isAlive || navAgent == null || !navAgent.enabled) return;
-
-        float distanceToTarget = Vector3.Distance(transform.position, target.position);
-
-        if (distanceToTarget <= attackRange)
-        {
-            if (canAttack)
-            {
-                StartCoroutine(AttackPattern());
-            }
-        }
-        else if (distanceToTarget <= detectionRange)
-        {
-            if (navAgent.isOnNavMesh)
-            {
-                navAgent.SetDestination(target.position);
-                // Blend Tree handles the movement animations based on speed
-            }
-        }
-        else
-        {
-            isAlerted = false;
-            StartCoroutine(Patrol());
-        }
-    }
 
     private IEnumerator AttackPattern()
     {

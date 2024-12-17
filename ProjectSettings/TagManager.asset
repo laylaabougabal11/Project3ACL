@@ -12,6 +12,7 @@ TagManager:
   - Rune
   - Potion
   - Gate
+  - SpawnPoint
   layers:
   - Default
   - TransparentFX

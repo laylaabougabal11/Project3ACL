@@ -12,7 +12,7 @@ public class MinionController : MonoBehaviour, IHealth
     public int MaxHealth => maxHealth;
     public bool IsAlive => currentHealth > 0; // Returns true if health is greater than 0
 
-    private bool isStunned = false;
+    private bool isStunned = false; // Indicates if the Minion is stunned
     private float stunEndTime = 0f;
 
 
@@ -81,25 +81,24 @@ public class MinionController : MonoBehaviour, IHealth
 
     public void Stun(float duration)
     {
+        if (isStunned) return; // Prevent multiple stuns from overlapping
+
         isStunned = true;
         stunEndTime = Time.time + duration;
-        if (navAgent != null && navAgent.isOnNavMesh)
-        {
-            navAgent.isStopped = true;
-        }
-        animator.SetTrigger("StunTrigger"); // Optional: Play stun animation
-        Debug.Log($"{gameObject.name} is stunned for {duration} seconds.");
+
+        if (navAgent != null) navAgent.isStopped = true; // Stop movement
+        animator.SetBool("IsStunned", true); // Trigger optional stun animation
     }
 
     public void Unstun()
     {
         isStunned = false;
-        if (navAgent != null && navAgent.isOnNavMesh)
-        {
-            navAgent.isStopped = false;
-        }
-        Debug.Log($"{gameObject.name} is no longer stunned.");
+
+        if (navAgent != null) navAgent.isStopped = false; // Resume movement
+        animator.SetBool("IsStunned", false); // End stun animation
     }
+
+
 
     public void BecomeAlerted()
     {

@@ -4,5 +4,23 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: 2355cf0e28d22c4459bc466139b89d07
+  - enabled: 1
+    path: Assets/Scenes/Characterselection.unity
+    guid: 90eeff76efe45a14692197419d898125
+  - enabled: 1
+    path: Assets/Scenes/Options.unity
+    guid: 3db5aa28844fae24ab2d7a7769180ae5
+  - enabled: 1
+    path: Assets/Scenes/MainScene.unity
+    guid: 20a2cc0c991ff99488966fce87bfc981
+  - enabled: 1
+    path: Assets/Scenes/BossScene.unity
+    guid: 4e0b2b51b6662be4f9d98e95645aff16
+  - enabled: 1
+    path: Assets/Scenes/Pause.unity
+    guid: 4386c53c72757e6429ee602d18c34afd
   m_configObjects: {}

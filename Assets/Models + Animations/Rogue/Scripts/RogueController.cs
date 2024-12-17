@@ -21,7 +21,6 @@ public class RogueController : WandererController
     {
         base.Start();
 
-
         cooldownTimers = new Dictionary<string, float>
         {
             { "Arrow", 0f },
@@ -35,7 +34,7 @@ public class RogueController : WandererController
             { "Arrow", 1f },
             { "SmokeBomb", 10f },
             { "Dash", 5f },
-            { "ShowerOfArrows", 15f }
+            { "ShowerOfArrows", 10f }
         };
     }
 
@@ -55,18 +54,24 @@ public class RogueController : WandererController
             if (!currentState.IsTag("Ability"))
             {
                 isAbilityActive = false;
-                Debug.Log("Returning to Blend Tree.");
             }
         }
     }
 
     private void HandleCooldowns()
     {
-        foreach (var key in cooldownTimers.Keys)
+        var keys = new List<string>(cooldownTimers.Keys);
+
+        foreach (var key in keys)
         {
             if (cooldownTimers[key] > 0)
             {
                 cooldownTimers[key] -= Time.deltaTime;
+
+                if (cooldownTimers[key] < 0)
+                {
+                    cooldownTimers[key] = 0;
+                }
             }
         }
     }
@@ -99,28 +104,51 @@ public class RogueController : WandererController
     private void TryUseArrow()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, enemyLayer))
+
+        // Check if the ray hits an enemy on the enemyLayer
+        if (Physics.Raycast(ray, out RaycastHit hit) && hit.collider.gameObject.layer == LayerMask.NameToLayer("enemyLayer"))
         {
-            SelectTarget(hit.collider.transform); // Select the target
+            // Trigger the shooting animation
             animator.SetTrigger("ShootingTrigger");
-            StartCoroutine(DelayArrow(0.5f, hit.collider.transform.position)); // Slight delay for animation
+
+            // Start the coroutine to fire the arrow after a delay
+            StartCoroutine(DelayArrow(0.5f, hit.point)); // Pass the hit point as the target position
         }
         else
         {
-            Debug.Log("Arrow ability requires an enemy target!");
+            Debug.LogWarning("Arrow requires an enemy target!");
         }
     }
+
 
     private IEnumerator DelayArrow(float delay, Vector3 targetPosition)
     {
         yield return new WaitForSeconds(delay);
 
+        // Ensure the arrow prefab and spawn point are valid
         if (arrowPrefab != null && arrowSpawnPoint != null)
         {
-            InstantiateProjectile(arrowSpawnPoint, targetPosition);
+            // Instantiate the arrow at the spawn point
+            GameObject arrow = Instantiate(arrowPrefab, arrowSpawnPoint.position, Quaternion.identity);
+
+            // Set the arrow's target position and damage
+            ArrowScript arrowScript = arrow.GetComponent<ArrowScript>();
+            if (arrowScript != null)
+            {
+                arrowScript.SetTarget(targetPosition, 5); // Arrow deals 5 damage
+                // Debug.Log($"Arrow fired towards {targetPosition}");
+            }
+
+            // Apply cooldown
             cooldownTimers["Arrow"] = cooldownDurations["Arrow"];
         }
+        else
+        {
+            Debug.LogError("Arrow prefab or spawn point is not assigned!");
+        }
     }
+
+
 
     private void InstantiateProjectile(Transform spawnPoint, Vector3 targetPosition)
     {
@@ -149,13 +177,11 @@ public class RogueController : WandererController
 
     private void UseDash(Vector3 targetPosition)
     {
-        Debug.Log($"Using Dash ability to: {targetPosition}");
         animator.SetBool("Dashing", true);
 
         navMeshAgent.SetDestination(targetPosition);
         cooldownTimers["Dash"] = cooldownDurations["Dash"];
 
-        // Reset dashing state once the destination is reached
         StartCoroutine(ResetDashState());
     }
 
@@ -180,7 +206,11 @@ public class RogueController : WandererController
             foreach (Collider collider in hitColliders)
             {
                 IHealth targetHealth = collider.GetComponent<IHealth>();
-                targetHealth?.TakeDamage(10); // 10 damage for Shower of Arrows
+                if (targetHealth != null)
+                {
+                    targetHealth.TakeDamage(10); // 10 damage for Shower of Arrows
+                    Debug.Log($"Shower of Arrows hit: {collider.name} for 10 damage.");
+                }
             }
 
             cooldownTimers["ShowerOfArrows"] = cooldownDurations["ShowerOfArrows"];

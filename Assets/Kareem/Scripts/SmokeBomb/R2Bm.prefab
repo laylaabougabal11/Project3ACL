@@ -265,10 +265,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   smokeParticlesPrefab: {fileID: 6645157817628639846, guid: 61e8905048dc9754ba151de20799fbcc, type: 3}
   stunRadius: 10
-  stunDuration: 3
+  stunDuration: 5
   enemyLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 128
 --- !u!1 &3922017175454867523
 GameObject:
   m_ObjectHideFlags: 0

@@ -76,7 +76,6 @@ public class Barbarian : WandererController
 
     private void HandleCooldowns()
     {
-        // Create a copy of the keys as a list to prevent modification issues
         var keys = new List<string>(cooldownTimers.Keys);
 
         foreach (var key in keys)
@@ -84,6 +83,11 @@ public class Barbarian : WandererController
             if (cooldownTimers[key] > 0)
             {
                 cooldownTimers[key] -= Time.deltaTime;
+
+                if (cooldownTimers[key] < 0)
+                {
+                    cooldownTimers[key] = 0;
+                }
             }
         }
     }
