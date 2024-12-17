@@ -48,6 +48,14 @@ public class MinionController : MonoBehaviour, IHealth
 
     void Update()
     {
+
+        if (target == null)
+        {
+            // Try to find the Wanderer again if not found initially
+            FindWanderer();
+            if (target == null) return; // Exit update if no target
+        }
+
         if (!isAlive) return;
 
         // Handle stun
@@ -76,6 +84,20 @@ public class MinionController : MonoBehaviour, IHealth
         else
         {
             animator.SetFloat("Speed", 0);
+        }
+    }
+
+    private void FindWanderer()
+    {
+        GameObject wanderer = GameObject.FindGameObjectWithTag("Wanderer");
+        if (wanderer != null)
+        {
+            target = wanderer.transform;
+            Debug.Log("Wanderer found by MinionController!");
+        }
+        else
+        {
+            Debug.LogWarning("Wanderer not found! Minion will retry...");
         }
     }
 

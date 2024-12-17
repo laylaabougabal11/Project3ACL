@@ -11,21 +11,34 @@ public class RunePanelController : MonoBehaviour
 
     void Start()
     {
-        // Find the Wanderer in the scene
-        wanderer = FindObjectOfType<WandererController>();
-
-        if (wanderer == null)
-        {
-            Debug.LogError("WandererController not found in the scene!");
-            //
-        }
+        FindWanderer();
     }
 
     void Update()
     {
+        if (wanderer == null)
+        {
+            // Retry finding the Wanderer in case it was loaded late
+            FindWanderer();
+        }
+
         if (wanderer != null)
         {
             UpdateRunePanel(wanderer.RuneFragments);
+        }
+    }
+
+    private void FindWanderer()
+    {
+        wanderer = FindObjectOfType<WandererController>();
+
+        if (wanderer == null)
+        {
+            Debug.LogWarning("WandererController not found in the scene. Retrying...");
+        }
+        else
+        {
+            Debug.Log("WandererController found successfully!");
         }
     }
 

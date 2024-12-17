@@ -13,6 +13,8 @@ TagManager:
   - Potion
   - Gate
   - SpawnPoint
+  - BossSpawnPoint
+  - HUD
   layers:
   - Default
   - TransparentFX

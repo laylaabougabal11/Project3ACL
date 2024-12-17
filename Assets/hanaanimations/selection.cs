@@ -55,6 +55,7 @@ public class selection : MonoBehaviour
     {
         // Save the selected character index
         PlayerPrefs.SetInt("SelectedCharacterIndex", currentIndex);
+        PlayerPrefs.Save();
 
         // Load the game scene
         SceneManager.LoadScene("MainScene"); // Replace with your game scene name

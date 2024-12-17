@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Barbarian : WandererController
+public class Barbarian : WandererController, IAbilityCooldown
 {
     private Dictionary<string, float> cooldownTimers;
     private Dictionary<string, float> cooldownDurations;
@@ -14,7 +14,7 @@ public class Barbarian : WandererController
     public int bashDamage = 20;
 
     private bool isShieldActive = false;
-    // public GameObject shieldEffect;
+    public GameObject shieldEffect;
     // public GameObject maelstromEffect;
 
     public float chargeSpeed = 10f;
@@ -72,6 +72,18 @@ public class Barbarian : WandererController
                 isAbilityActive = false;
             }
         }
+
+        shieldEffect.SetActive(isShieldActive);
+    }
+
+    public Dictionary<string, float> GetCooldownTimers()
+    {
+        return cooldownTimers;
+    }
+
+    public Dictionary<string, float> GetCooldownDurations()
+    {
+        return cooldownDurations;
     }
 
     private void HandleCooldowns()

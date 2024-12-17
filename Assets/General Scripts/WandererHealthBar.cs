@@ -14,19 +14,31 @@ public class WandererHealthBar : MonoBehaviour
 
     void Start()
     {
+        StartCoroutine(InitializeWanderer());
+    }
+
+    private IEnumerator InitializeWanderer()
+    {
+        // Wait a frame to ensure the correct Wanderer is active
+        yield return new WaitForEndOfFrame();
+
         wanderer = FindObjectOfType<WandererController>();
 
-        if (wanderer != null)
+        if (wanderer == null)
         {
-            // Initialize the slider values
-            healthSlider.maxValue = wanderer.maxHealth;
-            easeHealthSlider.maxValue = wanderer.maxHealth;
-            healthSlider.value = wanderer.currentHealth;
-            easeHealthSlider.value = wanderer.currentHealth;
-
-            UpdateHealthText(); // Update the text initially
+            Debug.LogError("WandererController not found in the scene!");
+            yield break;
         }
+
+        // Initialize the slider values with Wanderer's health
+        healthSlider.maxValue = wanderer.maxHealth;
+        easeHealthSlider.maxValue = wanderer.maxHealth;
+        healthSlider.value = wanderer.currentHealth;
+        easeHealthSlider.value = wanderer.currentHealth;
+
+        UpdateHealthText(); // Update the text initially
     }
+
 
     void Update()
     {

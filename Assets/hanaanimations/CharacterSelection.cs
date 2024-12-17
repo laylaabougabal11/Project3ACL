@@ -3,11 +3,8 @@ using UnityEngine.SceneManagement;
 
 public class CharacterSelection : MonoBehaviour
 {
-    public GameObject[] selectionModels; // Array of models shown in the selection scene
-    public GameObject[] mainSceneCharacters; // Array of character prefabs for the main scene (assigned in inspector)
-
+    public GameObject[] mainSceneCharacters; // Array of characters already in the scene
     private int currentIndex = 0; // Currently selected character index
-    private GameObject selectedCharacterInstance = null; // Holds the enabled character
 
     void Start()
     {
@@ -16,38 +13,45 @@ public class CharacterSelection : MonoBehaviour
 
     public void NextCharacter()
     {
-        currentIndex = (currentIndex + 1) % selectionModels.Length;
+        currentIndex = (currentIndex + 1) % mainSceneCharacters.Length;
         UpdateSelectionDisplay();
     }
 
     public void PreviousCharacter()
     {
         currentIndex--;
-        if (currentIndex < 0) currentIndex = selectionModels.Length - 1;
+        if (currentIndex < 0)
+            currentIndex = mainSceneCharacters.Length - 1;
         UpdateSelectionDisplay();
     }
 
     private void UpdateSelectionDisplay()
     {
-        for (int i = 0; i < selectionModels.Length; i++)
+        for (int i = 0; i < mainSceneCharacters.Length; i++)
         {
-            selectionModels[i].SetActive(i == currentIndex);
+            mainSceneCharacters[i].SetActive(i == currentIndex);
         }
+
+        Debug.Log($"Selected Character: {mainSceneCharacters[currentIndex].name}");
     }
 
     public void ConfirmSelection()
     {
-        // Ensure the previous character instance is removed (if any)
-        if (selectedCharacterInstance != null)
+        // Ensure only the selected character is active
+        for (int i = 0; i < mainSceneCharacters.Length; i++)
         {
-            Destroy(selectedCharacterInstance);
+            if (i == currentIndex)
+            {
+                mainSceneCharacters[i].SetActive(true);
+                DontDestroyOnLoad(mainSceneCharacters[i]); // Persist across scenes
+            }
+            else
+            {
+                mainSceneCharacters[i].SetActive(false);
+            }
         }
 
-        // Instantiate the chosen character prefab and mark it as DontDestroyOnLoad
-        selectedCharacterInstance = Instantiate(mainSceneCharacters[currentIndex]);
-        DontDestroyOnLoad(selectedCharacterInstance);
-
-        Debug.Log($"Character selected: {mainSceneCharacters[currentIndex].name}");
+        Debug.Log($"Character confirmed: {mainSceneCharacters[currentIndex].name}");
 
         // Save the selected index to PlayerPrefs (optional)
         PlayerPrefs.SetInt("SelectedCharacterIndex", currentIndex);

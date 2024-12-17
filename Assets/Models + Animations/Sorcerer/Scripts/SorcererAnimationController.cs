@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class SorcererController : WandererController
+public class SorcererController : WandererController, IAbilityCooldown
 {
     private Dictionary<string, float> cooldownTimers;
     private Dictionary<string, float> cooldownDurations;
 
     private bool isAbilityActive = false;
+    //
 
     [SerializeField] private GameObject fireballPrefab;
     [SerializeField] private Transform fireballSpawnPoint;
@@ -56,6 +57,16 @@ public class SorcererController : WandererController
                 Debug.Log("Returning to Blend Tree.");
             }
         }
+    }
+
+    public Dictionary<string, float> GetCooldownTimers()
+    {
+        return cooldownTimers;
+    }
+
+    public Dictionary<string, float> GetCooldownDurations()
+    {
+        return cooldownDurations;
     }
 
     private void HandleCooldowns()

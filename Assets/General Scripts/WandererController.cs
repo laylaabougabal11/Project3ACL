@@ -23,7 +23,8 @@ public abstract class WandererController : MonoBehaviour, IHealth
     protected Transform selectedTarget;
 
     // Inventory system
-    private int runeFragments;
+    [SerializeField]
+    public int runeFragments;
     public int RuneFragments => runeFragments; // Read-only property for Rune Fragments
     public int healingPotions;
     public GameObject potionModel;
@@ -36,6 +37,16 @@ public abstract class WandererController : MonoBehaviour, IHealth
     private HashSet<string> unlockedAbilities = new HashSet<string>();
 
     public LayerMask enemyLayer;
+
+    public GameObject winPanel;  // Reference to the Win panel
+    public GameObject losePanel; // Reference to the Lose panel
+
+
+    protected virtual void Awake()
+    {
+        // Ensure the Wanderer persists across scenes
+        DontDestroyOnLoad(gameObject);
+    }
 
 
     protected virtual void Start()
@@ -296,6 +307,16 @@ public abstract class WandererController : MonoBehaviour, IHealth
         animator.SetTrigger("DieTrigger");
         navMeshAgent.isStopped = true;
         Debug.Log("Wanderer has died!");
+
+        winPanel.SetActive(false);
+        // search for panels with tag "HUD" and set them to false
+        GameObject[] hudPanels = GameObject.FindGameObjectsWithTag("HUD");
+        foreach (GameObject panel in hudPanels)
+        {
+            panel.SetActive(false);
+        }
+        losePanel.SetActive(true);
+
     }
 
     protected abstract void HandleInputs();

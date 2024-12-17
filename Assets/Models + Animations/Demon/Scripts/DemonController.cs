@@ -68,6 +68,14 @@ public class DemonController : MonoBehaviour, IHealth
 
     void Update()
     {
+
+        if (target == null)
+        {
+            // Try to find the Wanderer again if not found initially
+            FindWanderer();
+            if (target == null) return; // Exit update if no target
+        }
+
         if (!isAlive) return;
 
         if (isStunned)
@@ -91,6 +99,21 @@ public class DemonController : MonoBehaviour, IHealth
         if (isAlerted)
         {
             EngageTarget();
+        }
+    }
+
+    private void FindWanderer()
+    {
+        GameObject wanderer = GameObject.FindGameObjectWithTag("Wanderer");
+        if (wanderer != null)
+        {
+            target = wanderer.transform;
+            WandererController wandererScript = wanderer.GetComponent<WandererController>();
+            Debug.Log($"Wanderer found by DemonController! Type: {wandererScript.GetType().Name}");
+        }
+        else
+        {
+            Debug.LogWarning("Wanderer not found! Demon will retry...");
         }
     }
 

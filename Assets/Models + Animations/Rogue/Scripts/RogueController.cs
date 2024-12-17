@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class RogueController : WandererController
+public class RogueController : WandererController, IAbilityCooldown
 {
     // Cooldown management
     private Dictionary<string, float> cooldownTimers;
@@ -56,6 +56,16 @@ public class RogueController : WandererController
                 isAbilityActive = false;
             }
         }
+    }
+
+    public Dictionary<string, float> GetCooldownTimers()
+    {
+        return cooldownTimers;
+    }
+
+    public Dictionary<string, float> GetCooldownDurations()
+    {
+        return cooldownDurations;
     }
 
     private void HandleCooldowns()
